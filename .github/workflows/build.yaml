@@ -88,10 +88,6 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         run: git config --global core.longpaths true
 
-      - name: Install Inno Setup (Windows)
-        if: startsWith(matrix.platform, 'windows')
-        run: choco install innosetup -y
-
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -115,7 +111,25 @@ jobs:
 
       - name: Build Windows
         if: startsWith(matrix.platform, 'windows')
-        run: dart setup.dart windows --env stable -v
+        shell: powershell
+        run: |
+          choco install innosetup -y
+          $iscc = Get-ChildItem -Path "C:\Program Files*" -Filter ISCC.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($iscc) {
+            $env:PATH += ";" + $iscc.DirectoryName
+            Write-Host "Found ISCC at $($iscc.FullName)"
+          } else {
+            Write-Host "ISCC.exe not found after install"
+          }
+          dart setup.dart windows --env stable -v | Tee-Object -FilePath windows-build.log
+
+      - name: Upload Windows build log on failure
+        if: failure() && startsWith(matrix.platform, 'windows')
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build-log
+          path: windows-build.log
+          if-no-files-found: ignore
 
       - name: Build Linux
         if: startsWith(matrix.platform, 'linux')
