@@ -8,7 +8,7 @@ const _allTargets = <String, String>{
   'android': 'apk',
   'linux': 'deb,rpm,tar.gz',
   'macos': 'dmg',
-  'windows': 'exe,zip',
+  'windows': 'zip',
 };
 
 const _androidFlutterTarget = {
