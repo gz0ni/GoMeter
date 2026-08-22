@@ -90,7 +90,7 @@ jobs:
 
       - name: Install Inno Setup (Windows)
         if: startsWith(matrix.platform, 'windows')
-        run: choco install innosetup --version=6.3.1 -y
+        run: choco install innosetup -y
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
