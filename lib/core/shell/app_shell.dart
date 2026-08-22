@@ -236,7 +236,7 @@ class _DesktopRail extends StatelessWidget {
     return NavigationRail(
       selectedIndex: selectedIndex < 0 ? 0 : selectedIndex,
       extended: extended,
-      labelType: extended ? NavigationRailLabelType.none : NavigationRailLabelType.all,
+      labelType: extended ? NavigationRailLabelType.all : NavigationRailLabelType.none,
       onDestinationSelected: (index) => context.go(destinations[index].path),
       leading: IconButton(
         onPressed: onToggleExtended,

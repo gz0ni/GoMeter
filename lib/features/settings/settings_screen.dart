@@ -5,6 +5,7 @@ import 'package:gometer/core/settings/settings_repository.dart';
 import 'package:gometer/core/theme/app_theme.dart';
 import 'package:gometer/core/theme/theme_provider.dart';
 import 'package:gometer/core/update/update_controller.dart';
+import 'dart:io' show Platform;
 import 'package:gometer/core/update/update_state.dart';
 import 'package:gometer/core/utils/opencode_auth.dart';
 import 'package:gometer/core/widgets/color_dot.dart';
@@ -195,13 +196,14 @@ class SettingsScreen extends ConsumerWidget {
                 onTap: () => context.go('/key'),
               ),
               const Divider(height: 1, indent: 16, endIndent: 16),
-              _IconTile(
-                icon: Icons.file_download,
-                title: 'Импорт из opencode CLI',
-                subtitle: '~/.local/share/opencode/auth.json',
-                trailing: const Icon(Icons.chevron_right),
-                onTap: importFromCli,
-              ),
+              if (!Platform.isAndroid && !Platform.isIOS)
+                _IconTile(
+                  icon: Icons.file_download,
+                  title: 'Импорт из opencode CLI',
+                  subtitle: opencodeAuthHintPath(),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: importFromCli,
+                ),
             ],
           ),
           _Section(

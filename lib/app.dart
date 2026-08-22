@@ -52,9 +52,20 @@ class _GoMeterAppState extends ConsumerState<GoMeterApp> {
           routerConfig: widget.router,
         );
       },
-      loading: () => const MaterialApp(home: SizedBox.shrink()),
+      loading: () => const MaterialApp(
+        home: Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+      ),
       error: (e, _) => MaterialApp(
-        home: Scaffold(body: Center(child: Text('Ошибка: $e'))),
+        home: Scaffold(
+          body: Center(
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: Text('Не удалось загрузить настройки: $e'),
+            ),
+          ),
+        ),
       ),
     );
   }

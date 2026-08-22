@@ -1,30 +1,80 @@
 import 'dart:convert';
 import 'dart:io';
 
-Future<String?> importOpencodeAuth() async {
+import 'package:path/path.dart' as p;
+
+String? _homeDir() {
   if (Platform.isAndroid || Platform.isIOS) return null;
 
-  final home = Platform.environment['HOME'] ??
-      (Platform.isWindows ? Platform.environment['USERPROFILE'] : null);
-  if (home == null) return null;
+  if (Platform.isWindows) {
+    return Platform.environment['USERPROFILE'] ??
+        Platform.environment['HOMEDRIVE'] ??
+        Platform.environment['HOMEPATH'];
+  }
 
-  final path = switch (Platform.operatingSystem) {
-    'linux' => '$home/.local/share/opencode/auth.json',
-    'macos' => '$home/Library/Application Support/opencode/auth.json',
-    'windows' => '${Platform.environment['APPDATA']}/opencode/auth.json',
-    _ => null,
+  return Platform.environment['HOME'];
+}
+
+String? _windowsConfigDir() => Platform.environment['APPDATA'];
+
+List<String> _candidatePaths() {
+  final home = _homeDir();
+
+  return switch (Platform.operatingSystem) {
+    'linux' => [
+        if (home != null) p.join(home, '.local', 'share', 'opencode', 'auth.json'),
+        if (home != null) p.join(home, '.config', 'opencode', 'auth.json'),
+      ],
+    'macos' => [
+        if (home != null)
+          p.join(home, 'Library', 'Application Support', 'opencode', 'auth.json'),
+        if (home != null) p.join(home, '.config', 'opencode', 'auth.json'),
+      ],
+    'windows' => [
+        if (home != null) p.join(home, '.config', 'opencode', 'auth.json'),
+        if (home != null)
+          p.join(home, '.local', 'share', 'opencode', 'auth.json'),
+        if (_windowsConfigDir() != null)
+          p.join(_windowsConfigDir()!, 'opencode', 'auth.json'),
+      ],
+    _ => const [],
   };
+}
 
-  if (path == null) return null;
-
+String? _readToken(String path) {
   try {
     final file = File(path);
-    if (!await file.exists()) return null;
-    final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+    if (!file.existsSync()) return null;
+    final json = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
     return json['token'] as String? ??
         json['access_token'] as String? ??
         json['refresh_token'] as String?;
   } catch (_) {
     return null;
   }
+}
+
+Future<String?> importOpencodeAuth() async {
+  if (Platform.isAndroid || Platform.isIOS) return null;
+
+  for (final path in _candidatePaths()) {
+    final token = _readToken(path);
+    if (token != null) return token;
+  }
+
+  return null;
+}
+
+String opencodeAuthHintPath() {
+  final candidates = _candidatePaths();
+  if (candidates.isEmpty) return '';
+
+  final first = candidates.first;
+  final home = _homeDir();
+
+  if (home != null && first.startsWith(home)) {
+    return first.replaceFirst(home, '~');
+  }
+
+  return first;
 }

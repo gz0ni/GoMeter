@@ -88,6 +88,10 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         run: git config --global core.longpaths true
 
+      - name: Install Inno Setup (Windows)
+        if: startsWith(matrix.platform, 'windows')
+        run: choco install innosetup -y
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -143,13 +147,77 @@ jobs:
           pattern: artifact-*
           merge-multiple: true
 
-      - name: Generate SHA256SUMS
+      - name: Generate release body
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
         run: |
-          cd ./dist
-          sha256sum ./* > SHA256SUMS
+          python3 <<'PY'
+          import glob, os, re
+
+          tag = os.environ['GITHUB_REF_NAME']
+          repo = os.environ['GITHUB_REPOSITORY']
+          base = f'https://github.com/{repo}/releases/download/{tag}'
+          files = sorted(glob.glob('dist/*'))
+
+          def badge(label, color):
+              safe = label.replace(' ', '%20').replace('-', '--')
+              return f'![{label}](https://img.shields.io/badge/{safe}-{color})'
+
+          rows = []
+          for path in files:
+              name = os.path.basename(path)
+              low = name.lower()
+              if low.endswith('.apk'):
+                  if 'arm64' in low or 'armv8' in low:
+                      rows.append(('Android', badge('APK ARMv8', 'brightgreen'), name))
+                  elif 'armeabi' in low or 'armv7' in low:
+                      rows.append(('Android', badge('APK ARMv7', 'brightgreen'), name))
+                  elif 'x86_64' in low:
+                      rows.append(('Android', badge('APK x64', 'brightgreen'), name))
+                  else:
+                      rows.append(('Android', badge('APK', 'brightgreen'), name))
+              elif low.endswith('.exe'):
+                  rows.append(('Windows', badge('Setup x64', 'blue'), name))
+              elif low.endswith('.zip') and 'windows' in low:
+                  rows.append(('Windows', badge('Portable x64', 'lightblue'), name))
+              elif low.endswith('.zip'):
+                  rows.append(('Windows', badge('Portable x64', 'lightblue'), name))
+              elif low.endswith('.dmg'):
+                  rows.append(('macOS', badge('DMG Apple Silicon', 'purple'), name))
+              elif low.endswith('.deb'):
+                  rows.append(('Linux', badge('DebPackage x64', 'orange'), name))
+              elif low.endswith('.rpm'):
+                  rows.append(('Linux', badge('RpmPackage x64', 'yellow'), name))
+              elif low.endswith('.tar.gz'):
+                  rows.append(('Linux', badge('tar.gz x64', 'lightgrey'), name))
+              elif 'appimage' in low:
+                  rows.append(('Linux', badge('AppImage x64', 'red'), name))
+
+          os_order = ['Android', 'Windows', 'macOS', 'Linux']
+          grouped = {os: [] for os in os_order}
+          for os, badge_md, name in rows:
+              if os in grouped:
+                  grouped[os].append((badge_md, name))
+
+          lines = [
+              '## Download based on your OS:',
+              '',
+              '| OS | Download |',
+              '|---|---|',
+          ]
+          for os in os_order:
+              for badge_md, name in grouped[os]:
+                  url = f'{base}/{name}'
+                  lines.append(f'| {os} | [{badge_md}]({url}) |')
+
+          with open('RELEASE_BODY.md', 'w') as f:
+              f.write('\n'.join(lines))
+              f.write('\n')
+          PY
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: ./dist/*
-          body: "Release ${{ github.ref_name }}"
+          body_path: RELEASE_BODY.md

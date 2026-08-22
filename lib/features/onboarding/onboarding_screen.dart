@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -149,21 +151,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               ),
               label: const Text('Сохранить и начать'),
             ),
-            const SizedBox(height: 8),
-            FilledButton.tonal(
-              onPressed: _importFromCli,
-              style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(48),
+            if (!Platform.isAndroid && !Platform.isIOS) ...[
+              const SizedBox(height: 8),
+              FilledButton.tonal(
+                onPressed: _importFromCli,
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.file_download),
+                    SizedBox(width: 8),
+                    Text('Импортировать из opencode CLI'),
+                  ],
+                ),
               ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.file_download),
-                  SizedBox(width: 8),
-                  Text('Импортировать из opencode CLI'),
-                ],
-              ),
-            ),
+            ],
           ],
         ),
       ),

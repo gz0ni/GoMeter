@@ -22,74 +22,80 @@ class UsageScreen extends ConsumerWidget {
     final update = ref.watch(updateControllerProvider);
     final scheme = Theme.of(context).colorScheme;
 
+    final appBar = AppBar(
+      title: const BrandLogo(),
+      actions: const [
+        _RefreshButton(),
+        _KeyButton(),
+      ],
+    );
+
     return usageAsync.when(
       data: (limits) {
-        if (limits.isEmpty) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        final worst = limits.reduce(
-          (a, b) => a.remainingPercent < b.remainingPercent ? a : b,
-        );
+        final worst = limits.isNotEmpty
+            ? limits.reduce(
+                (a, b) => a.remainingPercent < b.remainingPercent ? a : b,
+              )
+            : null;
 
         final showBanner = update.status == UpdateStatus.available &&
             !settings.bannerDismissed &&
             update.info != null;
 
         return Scaffold(
-          appBar: AppBar(
-            title: const BrandLogo(),
-            actions: const [
-              _RefreshButton(),
-              _KeyButton(),
-            ],
-          ),
-          body: ListView(
-            padding: const EdgeInsets.only(top: 4, bottom: 24),
-            children: [
-              if (showBanner)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: UpdateBanner(
-                    version: update.info!.tagName,
-                    subtitle: 'Улучшенная работа с лимитами',
-                    onUpdate: () => _startUpdate(context, ref),
-                    onDismiss: () => ref
-                        .read(settingsProvider.notifier)
-                        .setBannerDismissed(true),
-                  ),
+          appBar: appBar,
+          body: limits.isEmpty
+              ? _EmptyBody(
+                  message: 'Нет данных о лимитах',
+                  onRefresh: () => ref.read(usageProvider.notifier).refresh(),
+                )
+              : ListView(
+                  padding: const EdgeInsets.only(top: 4, bottom: 24),
+                  children: [
+                    if (showBanner)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: UpdateBanner(
+                          version: update.info!.tagName,
+                          subtitle: 'Улучшенная работа с лимитами',
+                          onUpdate: () => _startUpdate(context, ref),
+                          onDismiss: () => ref
+                              .read(settingsProvider.notifier)
+                              .setBannerDismissed(true),
+                        ),
+                      ),
+                    Padding(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      child: StatusChip(level: worst!.level),
+                    ),
+                    const SizedBox(height: 12),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        spacing: 12,
+                        children: limits.map((l) => LimitCard(limit: l)).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Обновлено недавно · проверка каждые ${settings.checkIntervalMinutes} мин',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                child: StatusChip(level: worst.level),
-              ),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  spacing: 12,
-                  children: limits.map((l) => LimitCard(limit: l)).toList(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Обновлено недавно · проверка каждые ${settings.checkIntervalMinutes} мин',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
         );
       },
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      loading: () => Scaffold(
+        appBar: appBar,
+        body: const Center(child: CircularProgressIndicator()),
       ),
       error: (e, _) => Scaffold(
+        appBar: appBar,
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -164,6 +170,45 @@ class _KeyButton extends StatelessWidget {
       icon: const Icon(Icons.key),
       tooltip: 'Ключ доступа',
       onPressed: () => context.go('/key'),
+    );
+  }
+}
+
+class _EmptyBody extends StatelessWidget {
+  final String message;
+  final VoidCallback onRefresh;
+
+  const _EmptyBody({required this.message, required this.onRefresh});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.cloud_off,
+              size: 48,
+              color: scheme.onSurfaceVariant,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: scheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 16),
+            FilledButton.tonalIcon(
+              onPressed: onRefresh,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Обновить'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

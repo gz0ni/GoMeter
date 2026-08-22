@@ -2,7 +2,7 @@ name: gometer
 description: "GoMeter — OpenCode Go subscription limits tracker."
 publish_to: 'none'
 
-version: 0.1.0+1
+version: 0.1.1+1
 
 environment:
   sdk: ^3.12.2
@@ -21,6 +21,7 @@ dependencies:
   package_info_plus: ^10.2.1
   path_provider: ^2.1.6
   url_launcher: ^6.3.2
+  path: ^1.9.0
 
 dev_dependencies:
   flutter_test:
@@ -30,7 +31,6 @@ dev_dependencies:
   image: ^4.5.2
   flutter_launcher_icons: ^0.14.1
   args: ^2.5.0
-  path: ^1.9.0
 
 flutter_launcher_icons:
   image_path: "assets/images/icon.png"
