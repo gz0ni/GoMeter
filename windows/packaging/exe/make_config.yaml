@@ -6,7 +6,7 @@ publisher_url: https://github.com/gz0ni/GoMeter
 display_name: GoMeter
 executable_name: gometer.exe
 output_base_file_name: GoMeter-Setup
-setup_icon_file: ..\windows\runner\resources\app_icon.ico
+setup_icon_file: windows\runner\resources\app_icon.ico
 locales:
   - lang: en
   - lang: ru
