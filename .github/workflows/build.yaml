@@ -39,6 +39,7 @@ jobs:
     needs: [ test ]
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - platform: android
@@ -68,7 +69,12 @@ jobs:
       - name: Setup Android Signing
         if: startsWith(matrix.platform, 'android')
         run: |
-          echo "${{ secrets.KEYSTORE }}" | base64 --decode > android/app/keystore.jks
+          set -e
+          echo "${{ secrets.KEYSTORE }}" | sed 's/^KEYSTORE=//' | base64 --decode > android/app/keystore.jks
+          if [ ! -s android/app/keystore.jks ]; then
+            echo "Keystore decode failed or empty. Check the KEYSTORE secret."
+            exit 1
+          fi
           {
             echo "keyStore=android/app/keystore.jks"
             echo "keyAlias=${{ secrets.KEY_ALIAS }}"
