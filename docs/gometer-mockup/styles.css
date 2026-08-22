@@ -1,0 +1,708 @@
+/* =========================================================
+   GoMeter · Material Design 3 (Google)
+   Тема: светлая/тёмная + 5 акцент-цветов (Material Color Utilities)
+   По умолчанию: тёмная тема + синий акцент
+   ========================================================= */
+
+/* ---- базовые (тёмная тема + синий seed) ---- */
+:root {
+  /* primary / secondary (синий, dark) */
+  --primary: #A6C8FF;
+  --on-primary: #003258;
+  --primary-container: #00497B;
+  --on-primary-container: #D2E4FF;
+  --secondary: #B9C8DC;
+  --on-secondary: #233341;
+  --secondary-container: #3A4A59;
+  --on-secondary-container: #D5E4F8;
+
+  /* surface (нейтральные, dark) */
+  --surface-dim: #111318;
+  --surface-bright: #37393F;
+  --surface-container-lowest: #0C0E13;
+  --surface-container-low: #191B21;
+  --surface-container: #1D1F25;
+  --surface-container-high: #282A30;
+  --surface-container-highest: #33353B;
+  --on-surface: #E2E2E9;
+  --on-surface-variant: #C5C6D0;
+  --inverse-surface: #E2E2E9;
+  --inverse-on-surface: #2E3036;
+  --outline: #8F9099;
+  --outline-variant: #45464F;
+
+  /* error / warn (dark) */
+  --error: #FFB4AB;
+  --on-error: #690005;
+  --error-container: #93000A;
+  --on-error-container: #FFDAD6;
+  --warn: #FFB759;
+  --warn-container: #5C4900;
+  --on-warn-container: #FFE08A;
+
+  /* форма и тени M3 */
+  --radius-xs: 4px;
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 16px;
+  --radius-xl: 28px;
+  --elev-1: 0 1px 2px rgba(0,0,0,.3), 0 1px 3px 1px rgba(0,0,0,.15);
+  --elev-2: 0 1px 2px rgba(0,0,0,.3), 0 2px 6px 2px rgba(0,0,0,.15);
+  --dur: 200ms;
+  --ease: cubic-bezier(.2, 0, 0, 1);
+}
+
+/* =========================================================
+   Светлая тема (поверхности + синий seed)
+   ========================================================= */
+body.theme-light {
+  --primary: #0061A4;
+  --on-primary: #FFFFFF;
+  --primary-container: #D2E4FF;
+  --on-primary-container: #001C37;
+  --secondary: #52606F;
+  --on-secondary: #FFFFFF;
+  --secondary-container: #D6E4F4;
+  --on-secondary-container: #0F1D2A;
+
+  --surface-dim: #D8D8DE;
+  --surface-bright: #FBFBFE;
+  --surface-container-lowest: #FFFFFF;
+  --surface-container-low: #F5F5FA;
+  --surface-container: #F0F0F5;
+  --surface-container-high: #EAEAEF;
+  --surface-container-highest: #E4E4E9;
+  --on-surface: #1A1B20;
+  --on-surface-variant: #45464F;
+  --inverse-surface: #2E3036;
+  --inverse-on-surface: #E2E2E9;
+  --outline: #767680;
+  --outline-variant: #C6C6CF;
+
+  --error: #BA1A1A;
+  --on-error: #FFFFFF;
+  --error-container: #FFDAD6;
+  --on-error-container: #410002;
+  --warn: #9C6200;
+  --warn-container: #FFE08A;
+  --on-warn-container: #2C1D00;
+}
+
+/* =========================================================
+   Акцент-цвета: фиолетовый / зелёный / оранжевый / розовый
+   (комбинируются с .theme-light)
+   ========================================================= */
+body.seed-violet {
+  --primary: #CFBCFF; --on-primary: #351B68; --primary-container: #4B2D92; --on-primary-container: #E9DDFF;
+  --secondary: #CBC2DB; --on-secondary: #332D42; --secondary-container: #4A435A; --on-secondary-container: #E7DEF8;
+}
+body.theme-light.seed-violet {
+  --primary: #6750A4; --on-primary: #FFFFFF; --primary-container: #E9DDFF; --on-primary-container: #22005D;
+  --secondary: #625B71; --on-secondary: #FFFFFF; --secondary-container: #E7DEF8; --on-secondary-container: #1E192B;
+}
+body.seed-green {
+  --primary: #9BE89F; --on-primary: #00390F; --primary-container: #00531C; --on-primary-container: #B3F5B4;
+  --secondary: #B8CCB8; --on-secondary: #233528; --secondary-container: #3B4C3D; --on-secondary-container: #D4E8D2;
+}
+body.theme-light.seed-green {
+  --primary: #3B693E; --on-primary: #FFFFFF; --primary-container: #B9F0B4; --on-primary-container: #0C370F;
+  --secondary: #556355; --on-secondary: #FFFFFF; --secondary-container: #D9E8D7; --on-secondary-container: #142015;
+}
+body.seed-orange {
+  --primary: #FFB77C; --on-primary: #512600; --primary-container: #753B00; --on-primary-container: #FFDCC1;
+  --secondary: #E0BEAA; --on-secondary: #3F2A1B; --secondary-container: #57402F; --on-secondary-container: #FFDBC4;
+}
+body.theme-light.seed-orange {
+  --primary: #9A4200; --on-primary: #FFFFFF; --primary-container: #FFDCC1; --on-primary-container: #321200;
+  --secondary: #765947; --on-secondary: #FFFFFF; --secondary-container: #FFDBC4; --on-secondary-container: #2A1708;
+}
+body.seed-pink {
+  --primary: #FFB1C8; --on-primary: #65002F; --primary-container: #8E0049; --on-primary-container: #FFD9E2;
+  --secondary: #E2BDC7; --on-secondary: #44242C; --secondary-container: #5C3A42; --on-secondary-container: #FFD9E2;
+}
+body.theme-light.seed-pink {
+  --primary: #9E3C5A; --on-primary: #FFFFFF; --primary-container: #FFD9E2; --on-primary-container: #400016;
+  --secondary: #75565F; --on-secondary: #FFFFFF; --secondary-container: #FFD9E2; --on-secondary-container: #2B151B;
+}
+
+/* Автоцвет (динамический, как Material You default) */
+body.seed-auto {
+  --primary: #CBBEFF; --on-primary: #3B2E6B; --primary-container: #534494; --on-primary-container: #E6DFFF;
+  --secondary: #C9C5D0; --on-secondary: #322F37; --secondary-container: #49464F; --on-secondary-container: #E5E1E9;
+}
+body.theme-light.seed-auto {
+  --primary: #6750A4; --on-primary: #FFFFFF; --primary-container: #E6DFFF; --on-primary-container: #1E0062;
+  --secondary: #625B71; --on-secondary: #FFFFFF; --secondary-container: #E8DEF8; --on-secondary-container: #1F192B;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  background: var(--surface-dim);
+  color: var(--on-surface);
+  font-family: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  justify-content: center;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+}
+
+/* ---- контейнер-«телефон» (собственный скролл) ---- */
+.app {
+  width: 100%;
+  max-width: 440px;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: 180px;
+  scrollbar-width: thin;
+}
+
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: auto;
+  animation: fade-in var(--dur) var(--ease);
+}
+.screen[hidden] { display: none; }
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* =========================================================
+   Top App Bar (M3)
+   ========================================================= */
+.top-app-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px 8px;
+  min-height: 64px;
+}
+.top-app-bar-title { display: flex; align-items: center; gap: 14px; flex: 1; }
+.app-bar-title { font-size: 22px; font-weight: 400; letter-spacing: .02em; }
+
+.brand-icon {
+  width: 40px; height: 40px;
+  border-radius: var(--radius-m);
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  display: grid; place-items: center;
+}
+.brand-text { display: flex; flex-direction: column; }
+.brand-name { font-size: 22px; font-weight: 400; letter-spacing: .02em; line-height: 1.2; }
+.brand-sub { font-size: 14px; color: var(--on-surface-variant); }
+
+.top-app-bar-actions { display: flex; gap: 4px; }
+
+/* Icon Button (M3) — 48px touch target */
+.icon-btn {
+  width: 48px; height: 48px;
+  border: none; border-radius: var(--radius-xl);
+  background: transparent; color: var(--on-surface-variant);
+  display: grid; place-items: center;
+  cursor: pointer;
+  font-size: 24px;
+  transition: background var(--dur);
+  position: relative;
+  overflow: hidden;
+}
+.icon-btn:hover { background: rgba(225, 228, 221, .08); }
+.icon-btn:active { background: rgba(225, 228, 221, .16); }
+.icon-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* =========================================================
+   Summary chip
+   ========================================================= */
+.summary { display: flex; align-items: center; padding: 4px 16px 12px; }
+.status-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-s);
+  font-size: 14px; font-weight: 500;
+}
+.status-chip .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.status-chip.is-ok     { background: var(--primary-container); color: var(--on-primary-container); }
+.status-chip.is-warn   { background: var(--warn-container);    color: var(--on-warn-container); }
+.status-chip.is-danger { background: var(--error-container);   color: var(--on-error-container); }
+
+/* =========================================================
+   Cards лимитов (M3 — filled card)
+   ========================================================= */
+.content { display: flex; flex-direction: column; gap: 16px; padding: 4px 16px 24px; }
+.cards { display: flex; flex-direction: column; gap: 12px; padding: 0 16px 24px; }
+
+.card {
+  background: var(--surface-container-low);
+  border-radius: var(--radius-m);
+  padding: 20px 20px 12px;
+  box-shadow: var(--elev-1);
+}
+
+.card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; }
+.card-name { font-size: 16px; font-weight: 500; letter-spacing: .01em; }
+.card-window { font-size: 12px; color: var(--on-surface-variant); }
+
+.card-metric { display: flex; align-items: baseline; gap: 10px; margin-top: 10px; }
+.card-percent { font-size: 40px; font-weight: 700; letter-spacing: -.01em; line-height: 1.05; }
+.card-percent small { font-size: 20px; font-weight: 500; color: var(--on-surface-variant); }
+.card-used { font-size: 14px; color: var(--on-surface-variant); }
+
+/* LinearProgressIndicator (M3) */
+.progress { height: 4px; border-radius: var(--radius-xs); background: var(--surface-container-highest); overflow: hidden; margin: 16px 0 12px; }
+.progress > span {
+  display: block; height: 100%;
+  border-radius: var(--radius-xs);
+  transition: width .6s var(--ease);
+}
+
+.card-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.card-countdown { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--on-surface-variant); }
+.card-countdown .material-symbols-outlined { font-size: 16px; }
+.card-countdown b { color: var(--on-surface); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+/* статусный чип */
+.status-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 500;
+  padding: 6px 12px; border-radius: var(--radius-s);
+  white-space: nowrap;
+}
+.status-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+.card.is-green  { --acc: var(--primary);            --acc-container: var(--primary-container);   --acc-on: var(--on-primary-container); }
+.card.is-amber  { --acc: var(--warn);               --acc-container: var(--warn-container);      --acc-on: var(--on-warn-container); }
+.card.is-red    { --acc: var(--error);              --acc-container: var(--error-container);     --acc-on: var(--on-error-container); }
+
+.card.is-green .card-percent, .card.is-amber .card-percent, .card.is-red .card-percent { color: var(--acc); }
+.card .progress > span { background: var(--acc); }
+.card .status-pill { background: var(--acc-container); color: var(--acc-on); }
+
+/* friendly-подпись */
+.card-note { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--outline-variant); font-size: 13px; color: var(--on-surface-variant); display: flex; gap: 8px; align-items: flex-start; }
+.card-note .material-symbols-outlined { font-size: 16px; color: var(--acc); flex: none; margin-top: 1px; }
+
+.updated { text-align: center; font-size: 12px; color: var(--on-surface-variant); padding: 12px 0 4px; }
+
+/* =========================================================
+   Форма ключа (M3 filled text field)
+   ========================================================= */
+.lead { font-size: 14px; color: var(--on-surface-variant); }
+
+.text-field { position: relative; display: flex; align-items: center; }
+.text-field-icon { position: absolute; left: 16px; color: var(--on-surface-variant); display: grid; place-items: center; }
+.text-field-icon .material-symbols-outlined { font-size: 20px; }
+.text-input {
+  width: 100%;
+  padding: 22px 56px 22px 52px;
+  font-size: 16px; font-family: inherit; color: var(--on-surface);
+  background: var(--surface-container-high);
+  border: none;
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
+  outline: none;
+  transition: background var(--dur);
+}
+.text-input::placeholder { color: var(--on-surface-variant); }
+.text-input:focus { background: var(--surface-container-highest); }
+.text-field-line {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: var(--outline); transition: height var(--dur), background var(--dur);
+}
+.text-input:focus ~ .text-field-line { height: 2px; background: var(--primary); }
+.text-field:focus-within .text-field-line { height: 2px; background: var(--primary); }
+
+.eye-btn {
+  position: absolute; right: 8px;
+  width: 40px; height: 40px; border: none;
+  background: transparent; color: var(--on-surface-variant);
+  display: grid; place-items: center; cursor: pointer;
+  border-radius: var(--radius-xl);
+  transition: background var(--dur), color var(--dur);
+}
+.eye-btn:hover { background: rgba(225, 228, 221, .08); color: var(--on-surface); }
+.eye-btn .material-symbols-outlined { font-size: 20px; }
+
+.helper { font-size: 12px; color: var(--on-surface-variant); margin-top: -8px; }
+.helper.is-error { color: var(--error); min-height: 18px; margin-top: 4px; }
+.helper.is-ok { color: var(--primary); min-height: 18px; margin-top: 4px; }
+
+/* =========================================================
+   Buttons (M3)
+   ========================================================= */
+.btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%;
+  height: 48px;
+  padding: 0 24px;
+  font-size: 14px; font-weight: 500; font-family: inherit; letter-spacing: .01em;
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: background var(--dur), box-shadow var(--dur), filter var(--dur);
+}
+.btn .material-symbols-outlined { font-size: 18px; }
+.btn:active { filter: brightness(.95); }
+.btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+.btn-filled {
+  background: var(--primary); color: var(--on-primary); border: none;
+  box-shadow: var(--elev-1);
+}
+.btn-filled:hover { box-shadow: var(--elev-2); }
+
+.btn-tonal {
+  background: var(--secondary-container); color: var(--on-secondary-container); border: none;
+}
+.btn-tonal:hover { background: #45574A; }
+
+.text-link {
+  text-align: center; font-size: 14px; font-weight: 500; color: var(--primary);
+  text-decoration: none; padding: 10px;
+}
+.text-link:hover { text-decoration: underline; }
+
+/* =========================================================
+   Notification preview (M3)
+   ========================================================= */
+.phone-notif {
+  background: var(--surface-container-high);
+  border-radius: var(--radius-m);
+  padding: 16px;
+  box-shadow: var(--elev-1);
+}
+.notif-header { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.notif-appicon {
+  width: 32px; height: 32px; border-radius: var(--radius-s);
+  background: var(--primary-container); color: var(--on-primary-container);
+  display: grid; place-items: center;
+}
+.notif-appicon .material-symbols-outlined { font-size: 18px; }
+.notif-appname { font-size: 14px; font-weight: 500; flex: 1; }
+.notif-time { font-size: 12px; color: var(--on-surface-variant); }
+.notif-body { display: flex; flex-direction: column; gap: 2px; }
+.notif-title { font-size: 14px; font-weight: 500; }
+.notif-text { font-size: 13px; color: var(--on-surface-variant); }
+
+/* =========================================================
+   Настройки: секции и списки (M3 list)
+   ========================================================= */
+.settings-section { display: flex; flex-direction: column; gap: 8px; }
+.section-title {
+  font-size: 14px; font-weight: 500; color: var(--primary);
+  padding: 8px 16px 0;
+}
+.settings-group {
+  background: var(--surface-container-low);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+}
+
+.list-item {
+  display: flex; align-items: center; gap: 16px;
+  width: 100%;
+  min-height: 64px;
+  padding: 8px 16px;
+  background: transparent; border: none;
+  color: var(--on-surface);
+  font-family: inherit; text-align: left;
+  cursor: default;
+}
+.list-item + .list-item { border-top: 1px solid var(--outline-variant); }
+.list-item.is-clickable { cursor: pointer; transition: background var(--dur); }
+.list-item.is-clickable:hover { background: rgba(225, 228, 221, .05); }
+.list-item.is-clickable:active { background: rgba(225, 228, 221, .1); }
+.list-item:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+
+.list-icon {
+  width: 40px; height: 40px; flex: none;
+  border-radius: var(--radius-xl);
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
+  display: grid; place-items: center;
+}
+.list-icon .material-symbols-outlined { font-size: 20px; }
+.list-icon.is-error { background: var(--error-container); color: var(--on-error-container); }
+
+.list-text { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.list-title { font-size: 16px; font-weight: 400; letter-spacing: .01em; }
+.list-title.is-error { color: var(--error); }
+.list-sub { font-size: 12px; color: var(--on-surface-variant); }
+.chevron { color: var(--on-surface-variant); font-size: 20px; }
+
+/* ---- filter chips (M3) для интервала ---- */
+.chip-row { display: flex; gap: 8px; padding: 8px 16px 16px; flex-wrap: wrap; }
+.filter-chip {
+  height: 40px;
+  padding: 0 16px;
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: inherit; font-size: 14px; font-weight: 500;
+  background: var(--surface-container-high);
+  color: var(--on-surface-variant);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  transition: background var(--dur), color var(--dur), border-color var(--dur);
+}
+.filter-chip:hover { background: var(--surface-container-highest); }
+.filter-chip.is-selected {
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
+  border-color: transparent;
+}
+
+/* =========================================================
+   Switch (M3)
+   ========================================================= */
+.m3-switch { position: relative; display: inline-block; width: 52px; height: 32px; flex: none; }
+.m3-switch input { opacity: 0; width: 0; height: 0; }
+.track {
+  position: absolute; inset: 0;
+  background: var(--surface-container-highest);
+  border: 2px solid var(--outline);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: background var(--dur), border-color var(--dur);
+}
+.thumb {
+  position: absolute; top: 50%; left: 4px;
+  width: 16px; height: 16px;
+  transform: translateY(-50%);
+  background: var(--outline);
+  border-radius: 50%;
+  transition: left var(--dur) var(--ease), width var(--dur), height var(--dur), background var(--dur);
+}
+.m3-switch input:checked + .track { background: var(--primary); border-color: var(--primary); }
+.m3-switch input:checked + .track .thumb { left: calc(100% - 20px); background: var(--on-primary); }
+.m3-switch input:focus-visible + .track { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* =========================================================
+   NavigationBar (M3) — плавающая «пилюля» внизу по центру
+   ========================================================= */
+.navigation-bar {
+  position: fixed;
+  bottom: 16px; left: 50%; transform: translateX(-50%);
+  width: fit-content;
+  max-width: calc(100% - 32px);
+  display: flex;
+  background: var(--surface-container-high);
+  box-shadow: var(--elev-2);
+  border-radius: var(--radius-xl);
+  padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+  gap: 6px;
+}
+.nav-item {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px;
+  width: 112px;
+  height: 72px;
+  padding: 0;
+  border: none; background: transparent; color: var(--on-surface-variant);
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: var(--radius-l);
+  transition: color var(--dur);
+}
+.nav-item .material-symbols-outlined { font-size: 24px; }
+/* активная пилюля-овал 64×32 за иконкой (M3 ActiveIndicator), смещение 12dp от верха */
+.nav-icon-wrap {
+  position: relative;
+  display: grid; place-items: center;
+  width: 64px; height: 32px;
+  margin-top: 12px;
+  z-index: 0;
+}
+.nav-indicator {
+  position: absolute; inset: 0;
+  border-radius: var(--radius-xl);
+  background: var(--secondary-container);
+  opacity: 0;
+  transform: scale(.6);
+  transition: opacity var(--dur), transform var(--dur);
+}
+.nav-item.is-active .nav-indicator { opacity: 1; transform: scale(1); }
+.nav-icon-wrap .material-symbols-outlined {
+  position: relative; z-index: 1; line-height: 1;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  transition: font-variation-settings var(--dur);
+}
+.nav-item.is-active .material-symbols-outlined {
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+.nav-label {
+  font-size: 12px; font-weight: 500;
+  white-space: nowrap;
+  color: var(--on-surface-variant);
+}
+.nav-item.is-active { color: var(--on-secondary-container); }
+.nav-item.is-active .nav-label { color: var(--on-secondary-container); }
+.nav-item:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+
+/* =========================================================
+   О приложении
+   ========================================================= */
+.about { padding-top: 12px; }
+.about-hero { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 24px 0 8px; }
+.about-logo {
+  width: 72px; height: 72px;
+  border-radius: 20px;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  display: grid; place-items: center;
+  box-shadow: var(--elev-2);
+}
+.about-logo .material-symbols-outlined { font-size: 40px; }
+.about-name { font-size: 24px; font-weight: 400; letter-spacing: .01em; margin-top: 8px; }
+.about-version { font-size: 14px; color: var(--on-surface-variant); }
+.about-desc { font-size: 14px; color: var(--on-surface-variant); text-align: center; line-height: 1.5; }
+.about-desc b { color: var(--on-surface); }
+.about-copy { font-size: 12px; color: var(--on-surface-variant); text-align: center; padding: 8px 0 16px; }
+
+/* =========================================================
+   Баннер обновления (главный экран)
+   ========================================================= */
+.update-banner {
+  display: flex; align-items: center; gap: 12px;
+  margin: 0 16px 12px;
+  padding: 12px 12px 12px 16px;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  border-radius: var(--radius-m);
+}
+.update-banner > .material-symbols-outlined { font-size: 22px; flex: none; }
+.update-banner-text { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.update-banner-title { font-size: 14px; font-weight: 500; }
+.update-banner-sub { font-size: 12px; opacity: .8; }
+.update-banner-btn {
+  flex: none;
+  height: 36px; padding: 0 16px;
+  border: none; border-radius: var(--radius-s);
+  background: var(--on-primary-container); color: var(--primary-container);
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  cursor: pointer;
+  transition: filter var(--dur);
+}
+.update-banner-btn:hover { filter: brightness(1.08); }
+.update-banner-close {
+  flex: none;
+  width: 36px; height: 36px;
+  border: none; background: transparent; color: inherit; opacity: .75;
+  display: grid; place-items: center; cursor: pointer;
+  border-radius: var(--radius-xl);
+}
+.update-banner-close:hover { opacity: 1; background: rgba(0,0,0,.12); }
+.update-banner-close .material-symbols-outlined { font-size: 18px; }
+
+/* =========================================================
+   Онбординг (первый запуск)
+   ========================================================= */
+.onboarding {
+  display: flex; flex-direction: column; gap: 16px;
+  padding: 24px 16px 32px;
+}
+.onboarding-hero { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding: 8px 0 12px; }
+.onboarding-logo {
+  width: 88px; height: 88px;
+  border-radius: 24px;
+  background: var(--primary-container); color: var(--on-primary-container);
+  display: grid; place-items: center;
+  box-shadow: var(--elev-2);
+}
+.onboarding-logo .material-symbols-outlined { font-size: 48px; }
+.onboarding-title { font-size: 24px; font-weight: 500; letter-spacing: .01em; margin-top: 12px; }
+.onboarding-sub { font-size: 14px; color: var(--on-surface-variant); max-width: 320px; }
+
+.onboarding-key { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.onb-hint { font-size: 12px; color: var(--on-surface-variant); }
+.onboarding .btn { height: 52px; }
+
+/* =========================================================
+   Цвет акцента (точки)
+   ========================================================= */
+.color-row { display: flex; gap: 16px; padding: 12px 16px 16px; flex-wrap: wrap; }
+.color-dot {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  background-clip: padding-box;
+  transition: transform var(--dur), border-color var(--dur), box-shadow var(--dur);
+  position: relative;
+}
+.color-dot:hover { transform: scale(1.08); }
+.color-dot.is-selected {
+  border-color: var(--on-surface);
+  box-shadow: 0 0 0 3px var(--surface-container);
+}
+.color-dot::after {
+  content: "";
+  position: absolute; inset: -7px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: border-color var(--dur);
+}
+.color-dot.is-selected::after { border-color: var(--color, var(--primary)); }
+.color-dot.is-auto {
+  background: var(--surface-container-highest);
+  color: var(--on-surface-variant);
+  display: grid; place-items: center;
+}
+.color-dot.is-auto .material-symbols-outlined { font-size: 22px; pointer-events: none; }
+.color-dot.is-auto.is-selected { color: var(--primary); }
+
+/* =========================================================
+   Обновление в «О приложении» + платформы
+   ========================================================= */
+.update-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  border-radius: var(--radius-m);
+}
+.update-card > .material-symbols-outlined { font-size: 24px; flex: none; }
+.update-card-text { flex: 1; display: flex; flex-direction: column; }
+.update-card-title { font-size: 14px; font-weight: 500; }
+.update-card-sub { font-size: 12px; opacity: .8; }
+.btn-sm { width: auto; height: 38px; padding: 0 18px; border-radius: var(--radius-s); font-size: 13px; }
+
+.list-sub.is-accent { color: var(--primary); font-weight: 500; }
+
+.platforms { display: flex; flex-direction: column; gap: 10px; }
+.platforms-title {
+  font-size: 14px; font-weight: 500; color: var(--primary);
+  padding: 4px 4px 0;
+}
+.platforms-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.platform-item {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  background: var(--surface-container-low);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-s);
+  font-size: 13px; font-weight: 500;
+}
+.platform-item .material-symbols-outlined { font-size: 18px; color: var(--on-surface-variant); }
+
+/* =========================================================
+   Обновление / misc
+   ========================================================= */
+.icon-btn.spinning .material-symbols-outlined { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

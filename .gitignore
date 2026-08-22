@@ -9,6 +9,13 @@
 
 
 
+# IDE
+.idea/
+*.iml
+
+# Codegraph index
+.codegraph/
+
 # Flutter repo-specific
 /bin/cache/
 /bin/internal/bootstrap.bat

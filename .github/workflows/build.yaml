@@ -1,0 +1,152 @@
+name: build
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  IS_STABLE: ${{ !contains(github.ref, '-') }}
+  FLUTTER_VERSION: '3.44.8'
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run tests
+        run: flutter test --reporter expanded
+
+  build:
+    needs: [ test ]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - platform: android
+            os: ubuntu-latest
+          - platform: windows
+            os: windows-2022
+            arch: amd64
+          - platform: linux
+            os: ubuntu-22.04
+            arch: amd64
+          - platform: linux
+            os: ubuntu-24.04-arm
+            arch: arm64
+          - platform: macos
+            os: macos-15
+            arch: amd64
+          - platform: macos
+            os: macos-latest
+            arch: arm64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Android Signing
+        if: startsWith(matrix.platform, 'android')
+        run: |
+          echo "${{ secrets.KEYSTORE }}" | base64 --decode > android/app/keystore.jks
+          {
+            echo "keyStore=android/app/keystore.jks"
+            echo "keyAlias=${{ secrets.KEY_ALIAS }}"
+            echo "storePassword=${{ secrets.STORE_PASSWORD }}"
+            echo "keyPassword=${{ secrets.KEY_PASSWORD }}"
+          } >> android/local.properties
+
+      - name: Setup NDK
+        if: startsWith(matrix.platform, 'android')
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r28c
+          add-to-path: true
+          link-to-sdk: true
+
+      - name: Enable git long paths (Windows)
+        if: startsWith(matrix.os, 'windows')
+        run: git config --global core.longpaths true
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Setup Xcode (macOS)
+        if: startsWith(matrix.platform, 'macos')
+        run: |
+          XCODE_APP=$(ls -1 /Applications | grep '^Xcode' | sort -V | tail -n1)
+          sudo xcode-select -s "/Applications/$XCODE_APP"
+          xcodebuild -version
+
+      - name: Build Android
+        if: startsWith(matrix.platform, 'android')
+        run: dart setup.dart android --env stable -v
+
+      - name: Build Windows
+        if: startsWith(matrix.platform, 'windows')
+        run: dart setup.dart windows --env stable -v
+
+      - name: Build Linux
+        if: startsWith(matrix.platform, 'linux')
+        run: dart setup.dart linux --env stable -v
+
+      - name: Build macOS
+        if: startsWith(matrix.platform, 'macos')
+        run: dart setup.dart macos --env stable -v
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-${{ matrix.platform }}${{ matrix.arch && format('-{0}', matrix.arch) }}
+          path: ./dist
+          overwrite: true
+
+  release:
+    name: Release
+    if: ${{ !contains(github.ref, '-') }}
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./dist
+          pattern: artifact-*
+          merge-multiple: true
+
+      - name: Generate SHA256SUMS
+        run: |
+          cd ./dist
+          sha256sum ./* > SHA256SUMS
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./dist/*
+          body: "Release ${{ github.ref_name }}"

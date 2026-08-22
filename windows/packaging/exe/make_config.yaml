@@ -1,0 +1,13 @@
+script_template: inno_setup.iss
+app_id: 34AA1677-186B-4914-8BB2-294C4140B923
+app_name: GoMeter
+publisher: gz0ni
+publisher_url: https://github.com/gz0ni/GoMeter
+display_name: GoMeter
+executable_name: gometer.exe
+output_base_file_name: GoMeter-Setup
+setup_icon_file: ..\windows\runner\resources\app_icon.ico
+locales:
+  - lang: en
+  - lang: ru
+privileges_required: admin

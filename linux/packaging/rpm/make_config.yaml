@@ -1,0 +1,21 @@
+display_name: GoMeter
+
+packager: gz0ni
+packagerEmail: gz0ni@users.noreply.github.com
+license: Other
+
+priority: optional
+section: x11
+installed_size: 6604
+essential: false
+icon: ./assets/images/icon.png
+
+keywords:
+  - GoMeter
+  - gometer
+
+generic_name: GoMeter
+
+group: Applications/Utilities
+
+startup_notify: true

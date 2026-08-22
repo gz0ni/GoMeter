@@ -1,0 +1,214 @@
+/* =========================================================
+   GoMeter Desktop · Material Design 3 (Google)
+   Desktop-раскладка поверх styles.css (мобильные токены/компоненты)
+   ========================================================= */
+
+body {
+  background: var(--surface-dim);
+  align-items: center;
+  padding: 24px;
+}
+
+.desktop {
+  position: relative;
+  width: 900px;
+  max-width: calc(100vw - 48px);
+  height: 640px;
+  max-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: row;
+  background: var(--surface-container-low);
+  border-radius: var(--radius-l);
+  box-shadow: var(--elev-2);
+  overflow: hidden;
+}
+
+/* =========================================================
+   NavigationRail (M3) — плавающий «пузырь» слева по центру
+   ========================================================= */
+.rail {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 80px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-container-high);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--elev-2);
+  padding: 12px 8px 8px;
+  transition: width var(--dur) var(--ease);
+}
+.rail.is-expanded { width: 220px; }
+.rail-top, .rail-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+}
+.rail-item {
+  position: relative;
+  width: 100%;
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: none;
+  background: transparent;
+  color: var(--on-surface-variant);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: var(--radius-l);
+  transition: color var(--dur);
+}
+.rail:not(.is-expanded) .rail-item { gap: 0; }
+.rail.is-expanded .rail-item {
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 20px;
+  padding: 0 16px;
+}
+.rail-item .material-symbols-outlined {
+  font-size: 24px; position: relative; z-index: 1; flex: none; line-height: 1; display: block;
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+  transition: font-variation-settings var(--dur);
+}
+.rail-item.is-active .material-symbols-outlined {
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+.rail-label {
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 0;
+  opacity: 0;
+  transition: max-width var(--dur) var(--ease), opacity var(--dur);
+}
+.rail:not(.is-expanded) .rail-label { display: none; }
+.rail.is-expanded .rail-label { max-width: 200px; opacity: 1; }
+/* активный индикатор: пилюля-овал 56×32 (M3) за иконкой */
+.rail-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(.6);
+  width: 56px; height: 32px;
+  border-radius: var(--radius-xl);
+  background: var(--secondary-container);
+  opacity: 0;
+  z-index: 0;
+  transition: opacity var(--dur), transform var(--dur);
+}
+.rail-item.is-active .rail-indicator { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.rail.is-expanded .rail-indicator {
+  left: 0;
+  transform: translateY(-50%) scale(.6);
+}
+.rail.is-expanded .rail-item.is-active .rail-indicator { transform: translateY(-50%) scale(1); }
+.rail-item:hover { background: rgba(225, 228, 221, .06); }
+.rail-item.is-active { color: var(--on-secondary-container); }
+.rail-item.is-active .rail-label { color: var(--on-secondary-container); }
+.rail-item:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+
+.rail-toggle {
+  margin-top: 8px;
+  height: 48px;
+  flex: none;
+  border: none;
+  border-radius: var(--radius-l);
+  background: transparent;
+  color: var(--on-surface-variant);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background var(--dur), color var(--dur);
+}
+.rail-toggle .material-symbols-outlined { font-size: 24px; }
+.rail.is-expanded .rail-toggle { justify-items: start; padding-left: 16px; }
+.rail-toggle:hover { background: rgba(225, 228, 221, .08); color: var(--on-surface); }
+.rail-toggle:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+
+/* =========================================================
+   Контент (скроллится внутри)
+   ========================================================= */
+.desktop-content {
+  flex: 1;
+  min-width: 0;
+  margin-left: 104px;
+  transition: margin-left var(--dur) var(--ease);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+}
+.rail.is-expanded + .desktop-content { margin-left: 240px; }
+.desktop-content.is-onboarding { margin-left: 0; }
+.rail.is-expanded + .desktop-content .d-cards {
+  grid-template-columns: 1fr;
+  max-width: 520px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ---- toolbar (Usage) ---- */
+.d-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px 12px;
+}
+.d-toolbar .brand { display: flex; align-items: center; gap: 14px; }
+.d-toolbar .brand-icon { width: 48px; height: 48px; }
+.d-toolbar .brand-icon .material-symbols-outlined { font-size: 26px; }
+.d-toolbar-actions { display: flex; align-items: center; gap: 12px; }
+.d-toolbar-actions .status-chip { margin: 0; }
+
+/* ---- сетка карточек ---- */
+.d-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  padding: 8px 24px 24px;
+}
+
+/* ---- узкая колонка (ключ/настройки/уведомления/о программе) ---- */
+.d-narrow {
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px 24px 40px;
+}
+.d-page-title { font-size: 22px; font-weight: 400; letter-spacing: .02em; padding: 8px 0; }
+
+/* ---- баннер обновления в контексте тулбара ---- */
+#screen-usage .update-banner { margin: 0 24px 12px; }
+
+/* =========================================================
+   Онбординг desktop (широкая колонка)
+   ========================================================= */
+.d-onboarding {
+  max-width: 680px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 24px 48px;
+}
+.d-onboarding-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.d-onboarding .btn { height: 52px; }
+
+/* ---------- адаптив: узкие окна ---------- */
+@media (max-width: 760px) {
+  .d-onboarding-grid { grid-template-columns: 1fr; }
+  .d-cards { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,27 @@
+display_name: GoMeter
+package_name: gometer
+maintainer:
+  name: gz0ni
+  email: gz0ni@users.noreply.github.com
+
+priority: optional
+section: x11
+installed_size: 6604
+essential: false
+icon: ./assets/images/icon.png
+
+dependencies:
+  - libgtk-3-0
+  - libblkid1
+  - liblzma5
+
+keywords:
+  - GoMeter
+  - gometer
+
+generic_name: GoMeter
+
+categories:
+  - Utility
+
+startup_notify: true
