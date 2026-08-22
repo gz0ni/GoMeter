@@ -125,6 +125,10 @@ jobs:
         if: startsWith(matrix.platform, 'macos')
         run: dart setup.dart macos --env stable -v
 
+      - name: List dist output
+        run: ls -R dist || echo "dist directory missing"
+        shell: bash
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
