@@ -283,9 +283,7 @@ Future<int> _ensureLinuxDependencies(String arch) async {
     ['ninja-build', 'libgtk-3-dev'],
   ];
 
-  if (arch == 'amd64') {
-    pkgGroups.add(['rpm', 'patchelf']);
-  }
+  pkgGroups.add(['rpm', 'patchelf']);
 
   final missingGroups = <List<String>>[];
   for (final group in pkgGroups) {
