@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gometer/app.dart';
+import 'package:gometer/core/notifications/notification_history.dart';
 import 'package:gometer/core/router/app_router.dart';
 import 'package:gometer/core/settings/settings_repository.dart';
 import 'package:gometer/core/theme/theme_provider.dart';
@@ -17,7 +18,12 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [settingsRepositoryProvider.overrideWithValue(repo)],
+        overrides: [
+          settingsRepositoryProvider.overrideWithValue(repo),
+          notificationHistoryProvider.overrideWithValue(
+            NotificationHistory(await SharedPreferences.getInstance()),
+          ),
+        ],
         child: GoMeterApp(router: router),
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gometer/core/autostart/autostart_service.dart';
 import 'package:gometer/core/settings/settings_repository.dart';
 
 final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
@@ -44,6 +45,26 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
 
   Future<void> setAutoCheckUpdate(bool value) =>
       _update((s) => s.copyWith(autoCheckUpdate: value));
+
+  Future<void> setAutostart(bool value) async {
+    final current = await future;
+    final service = ref.read(autostartServiceProvider);
+    if (value) {
+      await service.enable(quiet: current.quietStart);
+    } else {
+      await service.disable();
+    }
+    await _update((s) => s.copyWith(autostart: value));
+  }
+
+  Future<void> setQuietStart(bool value) async {
+    final current = await future;
+    final service = ref.read(autostartServiceProvider);
+    if (current.autostart) {
+      await service.enable(quiet: value);
+    }
+    await _update((s) => s.copyWith(quietStart: value));
+  }
 
   Future<void> reset() => _update((_) => const AppSettings());
 }

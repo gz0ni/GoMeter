@@ -26,6 +26,8 @@ class AppSettings {
   final bool threshold95;
   final bool bannerDismissed;
   final bool autoCheckUpdate;
+  final bool autostart;
+  final bool quietStart;
 
   const AppSettings({
     this.themeMode = AppThemeMode.dark,
@@ -37,6 +39,8 @@ class AppSettings {
     this.threshold95 = true,
     this.bannerDismissed = false,
     this.autoCheckUpdate = true,
+    this.autostart = false,
+    this.quietStart = false,
   });
 
   bool get keySet => apiKey.isNotEmpty;
@@ -51,6 +55,8 @@ class AppSettings {
     bool? threshold95,
     bool? bannerDismissed,
     bool? autoCheckUpdate,
+    bool? autostart,
+    bool? quietStart,
   }) =>
       AppSettings(
         themeMode: themeMode ?? this.themeMode,
@@ -62,6 +68,8 @@ class AppSettings {
         threshold95: threshold95 ?? this.threshold95,
         bannerDismissed: bannerDismissed ?? this.bannerDismissed,
         autoCheckUpdate: autoCheckUpdate ?? this.autoCheckUpdate,
+        autostart: autostart ?? this.autostart,
+        quietStart: quietStart ?? this.quietStart,
       );
 }
 
@@ -87,6 +95,8 @@ class SettingsRepository {
       threshold95: _prefs.getBool('threshold95') ?? true,
       bannerDismissed: _prefs.getBool('bannerDismissed') ?? false,
       autoCheckUpdate: _prefs.getBool('autoCheckUpdate') ?? true,
+      autostart: _prefs.getBool('autostart') ?? false,
+      quietStart: _prefs.getBool('quietStart') ?? false,
     );
   }
 
@@ -100,5 +110,7 @@ class SettingsRepository {
     await _prefs.setBool('threshold95', settings.threshold95);
     await _prefs.setBool('bannerDismissed', settings.bannerDismissed);
     await _prefs.setBool('autoCheckUpdate', settings.autoCheckUpdate);
+    await _prefs.setBool('autostart', settings.autostart);
+    await _prefs.setBool('quietStart', settings.quietStart);
   }
 }

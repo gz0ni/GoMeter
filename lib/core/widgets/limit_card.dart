@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gometer/core/theme/app_extra_colors.dart';
-import 'package:gometer/core/widgets/status_chip.dart';
 import 'package:gometer/features/usage/models/usage_limit.dart';
-import 'package:gometer/features/usage/utils/duration_format.dart';
 
 class LimitCard extends StatelessWidget {
   final UsageLimit limit;
@@ -13,130 +11,76 @@ class LimitCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final extra = context.extraColors;
-    final level = limit.level;
-    final accent = scheme.levelColor(level, extra);
+    final accent = scheme.levelColor(limit.level, extra);
 
-    return Card(
-      color: scheme.surfaceContainerLow,
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(28),
+      ),
+      padding: const EdgeInsets.fromLTRB(12, 22, 12, 16),
+      child: Column(
+        children: [
+          Icon(
+            _iconFor(limit.id),
+            size: 30,
+            color: scheme.onSurface,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            limit.name,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 4),
+          Text.rich(
+            TextSpan(
+              text: '${limit.percent}',
+              style: TextStyle(
+                fontSize: 27,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -0.01,
+                color: scheme.onSurface,
+              ),
               children: [
-                Text(
-                  limit.name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 0.01,
-                  ),
-                ),
-                Text(
-                  limit.window,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text(
-                  '${limit.percent}',
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: -0.01,
-                    color: accent,
-                  ),
-                ),
-                Text(
-                  '%',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  'использовано · осталось ${limit.remainingPercent}%',
+                TextSpan(
+                  text: '%',
                   style: TextStyle(
                     fontSize: 14,
+                    fontWeight: FontWeight.w500,
                     color: scheme.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: limit.percent / 100,
-                minHeight: 4,
-                backgroundColor: scheme.surfaceContainerHighest,
-                valueColor: AlwaysStoppedAnimation<Color>(accent),
-              ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'осталось ${limit.remainingPercent}%',
+            style: TextStyle(
+              fontSize: 12,
+              color: scheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.schedule,
-                      size: 16,
-                      color: scheme.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Сброс через ${formatDuration(limit.resetInSeconds)}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-                StatusPill(level: level),
-              ],
+          ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(9999),
+            child: LinearProgressIndicator(
+              value: limit.percent / 100,
+              minHeight: 6,
+              backgroundColor: scheme.surfaceContainerHighest,
+              valueColor: AlwaysStoppedAnimation<Color>(accent),
             ),
-            const SizedBox(height: 12),
-            Divider(color: scheme.outlineVariant, height: 1),
-            const SizedBox(height: 10),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.sentiment_satisfied_alt,
-                  size: 16,
-                  color: accent,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    noteFor(level),
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+
+  IconData _iconFor(String id) => switch (id) {
+        'rolling' => Icons.history,
+        'weekly' => Icons.date_range,
+        'monthly' => Icons.calendar_month,
+        _ => Icons.timelapse,
+      };
 }

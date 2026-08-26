@@ -1,30 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gometer/core/widgets/brand_logo.dart';
 
-class AppShell extends StatefulWidget {
+class AppShell extends StatelessWidget {
   final Widget child;
 
   const AppShell({super.key, required this.child});
-
-  @override
-  State<AppShell> createState() => _AppShellState();
-}
-
-class _AppShellState extends State<AppShell> {
-  bool _railExtended = false;
 
   static const _mobileDestinations = [
     _NavItem(
       path: '/usage',
       icon: Icons.speed_outlined,
       selectedIcon: Icons.speed,
-      label: 'Использование',
-    ),
-    _NavItem(
-      path: '/notifications',
-      icon: Icons.notifications_outlined,
-      selectedIcon: Icons.notifications,
-      label: 'Уведомления',
+      label: 'Лимиты',
     ),
     _NavItem(
       path: '/settings',
@@ -35,12 +23,17 @@ class _AppShellState extends State<AppShell> {
   ];
 
   static const _desktopDestinations = [
-    ..._mobileDestinations,
     _NavItem(
-      path: '/key',
-      icon: Icons.key_outlined,
-      selectedIcon: Icons.key,
-      label: 'Ключ',
+      path: '/usage',
+      icon: Icons.speed_outlined,
+      selectedIcon: Icons.speed,
+      label: 'Лимиты',
+    ),
+    _NavItem(
+      path: '/settings',
+      icon: Icons.settings_outlined,
+      selectedIcon: Icons.settings,
+      label: 'Настройки',
     ),
     _NavItem(
       path: '/about',
@@ -50,13 +43,15 @@ class _AppShellState extends State<AppShell> {
     ),
   ];
 
-  String _selectedPathForMobile(String location) {
+  static String _selectedPathForMobile(String location) {
     return switch (location) {
-      '/key' => '/usage',
-      '/about' => '/settings',
+      '/onboarding' || '/key' || '/about' => location,
       _ => location,
     };
   }
+
+  static bool _isFullScreen(String location) =>
+      location == '/onboarding' || location == '/key' || location == '/about';
 
   @override
   Widget build(BuildContext context) {
@@ -70,24 +65,21 @@ class _AppShellState extends State<AppShell> {
             _DesktopRail(
               location: location,
               destinations: _desktopDestinations,
-              extended: _railExtended,
-              onToggleExtended: () {
-                setState(() => _railExtended = !_railExtended);
-              },
             ),
-            const VerticalDivider(width: 1),
-            Expanded(child: widget.child),
+            Expanded(child: child),
           ],
         ),
       );
     }
 
     return Scaffold(
-      body: widget.child,
-      bottomNavigationBar: _PillNavigationBar(
-        selectedPath: _selectedPathForMobile(location),
-        destinations: _mobileDestinations,
-      ),
+      body: child,
+      bottomNavigationBar: _isFullScreen(location)
+          ? null
+          : _BottomNavigationBar(
+              selectedPath: _selectedPathForMobile(location),
+              destinations: _mobileDestinations,
+            ),
     );
   }
 }
@@ -106,104 +98,72 @@ class _NavItem {
   });
 }
 
-class _PillNavigationBar extends StatelessWidget {
-  final String selectedPath;
+class _DesktopRail extends StatelessWidget {
+  final String location;
   final List<_NavItem> destinations;
 
-  const _PillNavigationBar({
-    required this.selectedPath,
-    required this.destinations,
-  });
+  const _DesktopRail({required this.location, required this.destinations});
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final bottom = MediaQuery.paddingOf(context).bottom;
 
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + bottom),
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            decoration: BoxDecoration(
-              color: scheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(28),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: destinations.map((item) {
-                final selected = selectedPath == item.path;
-                return _PillItem(
-                  item: item,
-                  selected: selected,
-                  onTap: () => context.go(item.path),
-                );
-              }).toList(),
-            ),
+    return Container(
+      width: 240,
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerHigh,
+        border: Border(right: BorderSide(color: scheme.outlineVariant)),
+      ),
+      padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(14, 6, 14, 20),
+            child: BrandLogo(iconSize: 36),
           ),
-        ),
+          for (final item in destinations) _railItem(context, item),
+        ],
       ),
     );
   }
-}
 
-class _PillItem extends StatelessWidget {
-  final _NavItem item;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _PillItem({
-    required this.item,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _railItem(BuildContext context, _NavItem item) {
     final scheme = Theme.of(context).colorScheme;
+    final selected = item.path == location;
 
     return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: SizedBox(
-        width: 112,
-        height: 72,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      onTap: () => context.go(item.path),
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        height: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          color: selected ? scheme.secondaryContainer : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
           children: [
-            Container(
-              width: 64,
-              height: 32,
-              decoration: BoxDecoration(
-                color: selected ? scheme.secondaryContainer : Colors.transparent,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              alignment: Alignment.center,
-              child: Icon(
-                selected ? item.selectedIcon : item.icon,
-                color: selected
-                    ? scheme.onSecondaryContainer
-                    : scheme.onSurfaceVariant,
-              ),
+            Icon(
+              selected ? item.selectedIcon : item.icon,
+              size: 22,
+              color: selected
+                  ? scheme.onSecondaryContainer
+                  : scheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 4),
-            Text(
-              item.label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: selected
-                    ? scheme.onSecondaryContainer
-                    : scheme.onSurfaceVariant,
+            const SizedBox(width: 14),
+            Flexible(
+              child: Text(
+                item.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: selected
+                      ? scheme.onSecondaryContainer
+                      : scheme.onSurfaceVariant,
+                ),
               ),
             ),
           ],
@@ -213,45 +173,68 @@ class _PillItem extends StatelessWidget {
   }
 }
 
-class _DesktopRail extends StatelessWidget {
-  final String location;
+class _BottomNavigationBar extends StatelessWidget {
+  final String selectedPath;
   final List<_NavItem> destinations;
-  final bool extended;
-  final VoidCallback onToggleExtended;
 
-  const _DesktopRail({
-    required this.location,
+  const _BottomNavigationBar({
+    required this.selectedPath,
     required this.destinations,
-    required this.extended,
-    required this.onToggleExtended,
   });
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final selectedIndex = destinations.indexWhere(
-      (item) => item.path == location,
-    );
 
-    return NavigationRail(
-      selectedIndex: selectedIndex < 0 ? 0 : selectedIndex,
-      extended: extended,
-      labelType: extended ? NavigationRailLabelType.all : NavigationRailLabelType.none,
-      onDestinationSelected: (index) => context.go(destinations[index].path),
-      leading: IconButton(
-        onPressed: onToggleExtended,
-        icon: Icon(extended ? Icons.chevron_left : Icons.chevron_right),
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: destinations.map((item) {
+            final selected = selectedPath == item.path;
+            return InkWell(
+              onTap: () => context.go(item.path),
+              borderRadius: BorderRadius.circular(22),
+              child: Container(
+                constraints: const BoxConstraints(minWidth: 96),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color:
+                      selected ? scheme.secondaryContainer : Colors.transparent,
+                  borderRadius: BorderRadius.circular(22),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      selected ? item.selectedIcon : item.icon,
+                      size: 26,
+                      color: selected
+                          ? scheme.onSecondaryContainer
+                          : scheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      item.label,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: selected
+                            ? scheme.onSecondaryContainer
+                            : scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ),
       ),
-      destinations: destinations
-          .map(
-            (item) => NavigationRailDestination(
-              icon: Icon(item.icon),
-              selectedIcon: Icon(item.selectedIcon),
-              label: Text(item.label),
-            ),
-          )
-          .toList(),
-      backgroundColor: scheme.surface,
     );
   }
 }

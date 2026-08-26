@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gometer/app.dart';
+import 'package:gometer/core/notifications/notification_history.dart';
 import 'package:gometer/core/router/app_router.dart';
 import 'package:gometer/core/settings/settings_repository.dart';
 import 'package:gometer/core/theme/theme_provider.dart';
 import 'package:gometer/core/update/release_info.dart';
 import 'package:gometer/core/update/update_service.dart';
 import 'package:gometer/core/update/update_controller.dart';
-import 'package:gometer/features/notifications/notifications_screen.dart';
 import 'package:gometer/features/settings/settings_screen.dart';
 import 'package:gometer/features/usage/models/usage_limit.dart';
 import 'package:gometer/features/usage/providers/usage_provider.dart';
 import 'package:gometer/features/usage/usage_screen.dart';
+import 'package:gometer/core/widgets/limit_card.dart';
 import 'package:dio/dio.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -70,6 +71,9 @@ Future<ProviderScope> _mobileApp({required Widget child}) async {
       settingsRepositoryProvider.overrideWithValue(repo),
       updateServiceProvider.overrideWithValue(_FakeUpdateService()),
       usageProvider.overrideWith(() => _FakeUsageNotifier()),
+      notificationHistoryProvider.overrideWithValue(
+        NotificationHistory(await SharedPreferences.getInstance()),
+      ),
     ],
     child: MaterialApp(
       home: MediaQuery(
@@ -92,13 +96,6 @@ void main() {
       expect(find.text('30 дней'), findsOneWidget);
     });
 
-    testWidgets('NotificationsScreen shows content', (tester) async {
-      await tester.pumpWidget(await _mobileApp(child: const NotificationsScreen()));
-      await tester.pumpAndSettle();
-      expect(find.text('Уведомления'), findsOneWidget);
-      expect(find.text('Порог 80%'), findsOneWidget);
-    });
-
     testWidgets('SettingsScreen shows sections', (tester) async {
       await tester.pumpWidget(await _mobileApp(child: const SettingsScreen()));
       await tester.pumpAndSettle();
@@ -107,7 +104,11 @@ void main() {
     });
   });
 
-  testWidgets('whole app starts on mobile with key set', (tester) async {
+  Future<void> pumpMobileAppWithKey(WidgetTester tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
     SharedPreferences.setMockInitialValues({'apiKey': _testKey});
     final repo = await SettingsRepository.create();
     final router = AppRouter(repo).router;
@@ -118,18 +119,72 @@ void main() {
           settingsRepositoryProvider.overrideWithValue(repo),
           updateServiceProvider.overrideWithValue(_FakeUpdateService()),
           usageProvider.overrideWith(() => _FakeUsageNotifier()),
+          notificationHistoryProvider.overrideWithValue(
+            NotificationHistory(await SharedPreferences.getInstance()),
+          ),
         ],
-        child: MediaQuery(
-          data: const MediaQueryData(size: Size(390, 844)),
-          child: GoMeterApp(router: router),
-        ),
+        child: GoMeterApp(router: router),
       ),
     );
-
     await tester.pumpAndSettle();
-    expect(find.text('Использование'), findsOneWidget);
-    expect(find.text('GoMeter'), findsOneWidget);
+  }
+
+  testWidgets(
+    'regression: shell body renders content on mobile (pill nav does not collapse it)',
+    (tester) async {
+      await pumpMobileAppWithKey(tester);
+
+      expect(find.byType(LimitCard), findsNWidgets(3));
+      expect(find.text('5 часов'), findsOneWidget);
+    },
+  );
+
+  testWidgets('whole app starts on mobile with key set', (tester) async {
+    await pumpMobileAppWithKey(tester);
+    expect(find.text('Лимиты'), findsWidgets);
+    expect(find.byType(LimitCard), findsNWidgets(3));
   });
+
+  testWidgets(
+    'onboarding flow: key entry lands on usage with content',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      SharedPreferences.setMockInitialValues({});
+      final repo = await SettingsRepository.create();
+      final router = AppRouter(repo).router;
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            settingsRepositoryProvider.overrideWithValue(repo),
+            updateServiceProvider.overrideWithValue(_FakeUpdateService()),
+            usageProvider.overrideWith(() => _FakeUsageNotifier()),
+            notificationHistoryProvider.overrideWithValue(
+              NotificationHistory(await SharedPreferences.getInstance()),
+            ),
+          ],
+          child: GoMeterApp(router: router),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('GoMeter'), findsOneWidget);
+
+      await tester.enterText(
+        find.byType(TextField),
+        _testKey,
+      );
+      await tester.ensureVisible(find.text('Сохранить и начать'));
+      await tester.tap(find.text('Сохранить и начать'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('5 часов'), findsOneWidget);
+      expect(find.text('7 дней'), findsOneWidget);
+      expect(find.text('30 дней'), findsOneWidget);
+      expect(find.text('Лимиты'), findsWidgets);
+    },
+  );
 }
-
-

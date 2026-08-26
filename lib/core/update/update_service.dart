@@ -12,7 +12,10 @@ class UpdateService {
   Future<ReleaseInfo?> checkForUpdate() async {
     final response = await _dio.get<Map<String, dynamic>>(
       'https://api.github.com/repos/gz0ni/GoMeter/releases/latest',
-      options: Options(responseType: ResponseType.json),
+      options: Options(
+        responseType: ResponseType.json,
+        validateStatus: (_) => true,
+      ),
     );
     if (response.statusCode != 200 || response.data == null) return null;
 

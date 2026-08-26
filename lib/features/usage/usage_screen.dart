@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gometer/core/layout/breakpoints.dart';
 import 'package:gometer/core/settings/settings_repository.dart';
 import 'package:gometer/core/theme/theme_provider.dart';
-import 'package:gometer/core/update/update_controller.dart';
-import 'package:gometer/core/update/update_state.dart';
-import 'package:gometer/core/widgets/brand_logo.dart';
 import 'package:gometer/core/widgets/limit_card.dart';
-import 'package:gometer/core/widgets/status_chip.dart';
-import 'package:gometer/core/widgets/update_banner.dart';
-import 'package:gometer/core/widgets/update_progress_dialog.dart';
+import 'package:gometer/core/widgets/page_head.dart';
+import 'package:gometer/core/widgets/push_card.dart';
+import 'package:gometer/core/widgets/status_card.dart';
+import 'package:gometer/core/widgets/section_title.dart';
+import 'package:gometer/features/usage/models/usage_limit.dart';
+import 'package:gometer/features/usage/providers/push_cards_provider.dart';
 import 'package:gometer/features/usage/providers/usage_provider.dart';
 
 class UsageScreen extends ConsumerWidget {
@@ -19,93 +20,114 @@ class UsageScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final usageAsync = ref.watch(usageProvider);
     final settings = ref.watch(settingsProvider).value ?? const AppSettings();
-    final update = ref.watch(updateControllerProvider);
-    final scheme = Theme.of(context).colorScheme;
+    final pushes = ref.watch(pushCardsProvider);
+    final isDesktop = isDesktopLayout(context);
 
-    final appBar = AppBar(
-      title: const BrandLogo(),
-      actions: const [
-        _RefreshButton(),
+    final head = PageHead(
+      title: 'Лимиты',
+      actions: [
+        const _RefreshButton(),
         _KeyButton(),
       ],
     );
 
-    return usageAsync.when(
-      data: (limits) {
-        final worst = limits.isNotEmpty
-            ? limits.reduce(
-                (a, b) => a.remainingPercent < b.remainingPercent ? a : b,
-              )
-            : null;
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: isDesktop ? 640 : 440),
+            child: usageAsync.when(
+              data: (data) {
+                final worst = data.isEmpty
+                    ? null
+                    : data.reduce(
+                        (a, b) => a.remainingPercent < b.remainingPercent
+                            ? a
+                            : b,
+                      );
 
-        final showBanner = update.status == UpdateStatus.available &&
-            !settings.bannerDismissed &&
-            update.info != null;
-
-        return Scaffold(
-          appBar: appBar,
-          body: limits.isEmpty
-              ? _EmptyBody(
-                  message: 'Нет данных о лимитах',
-                  onRefresh: () => ref.read(usageProvider.notifier).refresh(),
-                )
-              : ListView(
-                  padding: const EdgeInsets.only(top: 4, bottom: 24),
+                return ListView(
+                  padding: EdgeInsets.fromLTRB(
+                    isDesktop ? 32 : 24,
+                    24,
+                    isDesktop ? 32 : 24,
+                    48,
+                  ),
                   children: [
-                    if (showBanner)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: UpdateBanner(
-                          version: update.info!.tagName,
-                          subtitle: 'Улучшенная работа с лимитами',
-                          onUpdate: () => _startUpdate(context, ref),
+                    head,
+                    const SizedBox(height: 16),
+                    if (pushes.isNotEmpty) ...[
+                      for (final card in pushes) ...[
+                        PushCardTile(
+                          card: card,
                           onDismiss: () => ref
-                              .read(settingsProvider.notifier)
-                              .setBannerDismissed(true),
+                              .read(pushCardsProvider.notifier)
+                              .dismiss(card.id),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                      const SizedBox(height: 6),
+                    ],
+                    if (data.isEmpty)
+                      _EmptyBody(
+                        message: 'Нет данных о лимитах',
+                        onRefresh: () =>
+                            ref.read(usageProvider.notifier).refresh(),
+                      )
+                    else ...[
+                      _buildCards(data, isDesktop),
+                      const SizedBox(height: 18),
+                      const SectionTitle(title: 'Статус'),
+                      const SizedBox(height: 10),
+                      StatusCard(
+                        level: worst!.level,
+                        windowName: worst.name,
+                        percent: worst.percent,
+                        resetInSeconds: worst.resetInSeconds,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Обновлено недавно · проверка каждые ${settings.checkIntervalMinutes} мин',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
-                    Padding(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      child: StatusChip(level: worst!.level),
-                    ),
-                    const SizedBox(height: 12),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        spacing: 12,
-                        children: limits.map((l) => LimitCard(limit: l)).toList(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Обновлено недавно · проверка каждые ${settings.checkIntervalMinutes} мин',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
+                    ],
                   ],
-                ),
-        );
-      },
-      loading: () => Scaffold(
-        appBar: appBar,
-        body: const Center(child: CircularProgressIndicator()),
-      ),
-      error: (e, _) => Scaffold(
-        appBar: appBar,
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('Не удалось загрузить лимиты: $e'),
-                const SizedBox(height: 16),
-                _RefreshButton(),
-              ],
+                );
+              },
+              loading: () => ListView(
+                padding: const EdgeInsets.all(24),
+                children: [
+                  head,
+                  const SizedBox(height: 60),
+                  const Center(child: CircularProgressIndicator()),
+                ],
+              ),
+              error: (e, _) => ListView(
+                padding: const EdgeInsets.all(24),
+                children: [
+                  head,
+                  const SizedBox(height: 60),
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Не удалось загрузить лимиты: $e'),
+                        const SizedBox(height: 16),
+                        FilledButton.tonalIcon(
+                          onPressed: () =>
+                              ref.read(usageProvider.notifier).refresh(),
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Обновить'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -113,12 +135,38 @@ class UsageScreen extends ConsumerWidget {
     );
   }
 
-  void _startUpdate(BuildContext context, WidgetRef ref) {
-    ref.read(updateControllerProvider.notifier).downloadAndInstall();
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const UpdateProgressDialog(),
+  Widget _buildCards(List<UsageLimit> limits, bool isDesktop) {
+    if (!isDesktop) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final (i, limit) in limits.indexed) ...[
+            if (i > 0) const SizedBox(width: 12),
+            Expanded(child: LimitCard(limit: limit)),
+          ],
+        ],
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const minCardWidth = 180.0;
+        const gap = 12.0;
+        final width = constraints.maxWidth;
+        final columns =
+            (width / minCardWidth).floor().clamp(1, limits.length).toInt();
+        final cardWidth =
+            ((width - gap * (columns - 1)) / columns).toDouble();
+
+        return Wrap(
+          spacing: gap,
+          runSpacing: 12,
+          children: [
+            for (final limit in limits)
+              SizedBox(width: cardWidth, child: LimitCard(limit: limit)),
+          ],
+        );
+      },
     );
   }
 }
@@ -154,6 +202,7 @@ class _RefreshButtonState extends ConsumerState<_RefreshButton>
       turns: _controller,
       child: IconButton(
         icon: const Icon(Icons.refresh),
+        iconSize: 22,
         tooltip: 'Обновить',
         onPressed: _refresh,
       ),
@@ -167,7 +216,8 @@ class _KeyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: const Icon(Icons.key),
+      icon: const Icon(Icons.key_outlined),
+      iconSize: 22,
       tooltip: 'Ключ доступа',
       onPressed: () => context.go('/key'),
     );
@@ -183,31 +233,28 @@ class _EmptyBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.cloud_off,
-              size: 48,
-              color: scheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.onSurfaceVariant),
-            ),
-            const SizedBox(height: 16),
-            FilledButton.tonalIcon(
-              onPressed: onRefresh,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Обновить'),
-            ),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.only(top: 60),
+      child: Column(
+        children: [
+          Icon(
+            Icons.cloud_off,
+            size: 48,
+            color: scheme.onSurfaceVariant,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: scheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 16),
+          FilledButton.tonalIcon(
+            onPressed: onRefresh,
+            icon: const Icon(Icons.refresh),
+            label: const Text('Обновить'),
+          ),
+        ],
       ),
     );
   }

@@ -4,7 +4,6 @@ import 'package:gometer/core/settings/settings_repository.dart';
 import 'package:gometer/core/shell/app_shell.dart';
 import 'package:gometer/features/about/about_screen.dart';
 import 'package:gometer/features/access_key/access_key_screen.dart';
-import 'package:gometer/features/notifications/notifications_screen.dart';
 import 'package:gometer/features/onboarding/onboarding_screen.dart';
 import 'package:gometer/features/settings/settings_screen.dart';
 import 'package:gometer/features/usage/usage_screen.dart';
@@ -28,10 +27,6 @@ class AppRouter {
           GoRoute(
             path: '/usage',
             builder: (context, state) => const UsageScreen(),
-          ),
-          GoRoute(
-            path: '/notifications',
-            builder: (context, state) => const NotificationsScreen(),
           ),
           GoRoute(
             path: '/settings',

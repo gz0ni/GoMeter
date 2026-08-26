@@ -3,13 +3,11 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:gometer/core/settings/settings_repository.dart';
-import 'package:gometer/core/theme/app_theme.dart';
+import 'package:gometer/core/layout/breakpoints.dart';
 import 'package:gometer/core/theme/theme_provider.dart';
-import 'package:gometer/core/widgets/color_dot.dart';
-import 'package:gometer/core/widgets/filter_chip.dart';
-import 'package:gometer/core/widgets/filled_text_field.dart';
 import 'package:gometer/core/utils/opencode_auth.dart';
+import 'package:gometer/core/widgets/app_icon.dart';
+import 'package:gometer/core/widgets/filled_text_field.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -41,13 +39,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     return null;
   }
 
-  void _save() {
+  Future<void> _save() async {
     final error = _validateKey(_controller.text);
     if (error != null) {
       setState(() => _error = error);
       return;
     }
-    ref.read(settingsProvider.notifier).setApiKey(_controller.text.trim());
+    await ref.read(settingsProvider.notifier).setApiKey(_controller.text.trim());
     if (mounted) context.go('/usage');
   }
 
@@ -63,121 +61,108 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final settings = ref.watch(settingsProvider).value ?? const AppSettings();
-    final scheme = Theme.of(context).colorScheme;
+    final isDesktop = isDesktopLayout(context);
 
     return Scaffold(
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            const SizedBox(height: 24),
-            Center(
-              child: CircleAvatar(
-                radius: 44,
-                backgroundColor: scheme.primaryContainer,
-                child: Icon(
-                  Icons.speed,
-                  size: 48,
-                  color: scheme.onPrimaryContainer,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: isDesktop ? 640 : double.infinity,
+            ),
+            child: ListView(
+              padding: const EdgeInsets.all(24),
+              children: [
+                const SizedBox(height: 12),
+                _hero(context),
+                const SizedBox(height: 24),
+                _keySection(),
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed: _save,
+                  icon: const Icon(Icons.arrow_forward),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
+                  ),
+                  label: const Text('Сохранить и начать'),
                 ),
-              ),
+                if (!Platform.isAndroid && !Platform.isIOS) ...[
+                  const SizedBox(height: 10),
+                  OutlinedButton.icon(
+                    onPressed: _importFromCli,
+                    icon: const Icon(Icons.file_download),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50),
+                    ),
+                    label: const Text('Импортировать из opencode CLI'),
+                  ),
+                ],
+              ],
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'Добро пожаловать в GoMeter',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 24),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Трекер лимитов подписки OpenCode Go. Настроим за минуту.',
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            _sectionTitle('Тема'),
-            Wrap(
-              spacing: 8,
-              children: AppThemeMode.values.map((mode) {
-                return FilterChipWidget(
-                  label: switch (mode) {
-                    AppThemeMode.light => 'Светлая',
-                    AppThemeMode.dark => 'Тёмная',
-                    AppThemeMode.system => 'Системная',
-                  },
-                  selected: settings.themeMode == mode,
-                  onSelected: (_) =>
-                      ref.read(settingsProvider.notifier).setThemeMode(mode),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 24),
-            _sectionTitle('Цвет акцента'),
-            Wrap(
-              spacing: 12,
-              children: AccentSeed.values.map((seed) {
-                return ColorDot(
-                  isAuto: seed == AccentSeed.auto,
-                  color: seed == AccentSeed.auto ? null : seed.color,
-                  selected: settings.seed == seed,
-                  onTap: () =>
-                      ref.read(settingsProvider.notifier).setSeed(seed),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 24),
-            _sectionTitle('Ключ доступа'),
-            FilledTextField(
-              controller: _controller,
-              obscureText: _obscure,
-              labelText: 'Ключ API',
-              hintText: 'sk-...',
-              errorText: _error,
-              prefixIcon: const Icon(Icons.vpn_key),
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscure ? Icons.visibility : Icons.visibility_off,
-                ),
-                onPressed: () => setState(() => _obscure = !_obscure),
-              ),
-              helperText: 'Ключ хранится локально на устройстве.',
-            ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: _save,
-              icon: const Icon(Icons.check),
-              style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(52),
-              ),
-              label: const Text('Сохранить и начать'),
-            ),
-            if (!Platform.isAndroid && !Platform.isIOS) ...[
-              const SizedBox(height: 8),
-              FilledButton.tonal(
-                onPressed: _importFromCli,
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size.fromHeight(48),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.file_download),
-                    SizedBox(width: 8),
-                    Text('Импортировать из opencode CLI'),
-                  ],
-                ),
-              ),
-            ],
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _sectionTitle(String text) {
-    return Text(
-      text,
-      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+  Widget _hero(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Column(
+      children: [
+        const AppIcon(
+          size: 116,
+          radius: 58,
+          image: 'assets/images/png/icon-512.png',
+        ),
+        const SizedBox(height: 14),
+        const Text(
+          'GoMeter',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.01,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Трекер лимитов подписки OpenCode Go. Укажи ключ — и поехали.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14,
+            height: 1.5,
+            color: scheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _keySection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Ключ доступа',
+          style: TextStyle(fontSize: 19, fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 10),
+        FilledTextField(
+          controller: _controller,
+          obscureText: _obscure,
+          labelText: 'Ключ API',
+          hintText: 'sk-...',
+          errorText: _error,
+          prefixIcon: const Icon(Icons.vpn_key),
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscure ? Icons.visibility : Icons.visibility_off,
+            ),
+            onPressed: () => setState(() => _obscure = !_obscure),
+          ),
+          helperText:
+              'Ключ хранится только в защищённом хранилище устройства и никуда не отправляется.',
+        ),
+      ],
     );
   }
 }

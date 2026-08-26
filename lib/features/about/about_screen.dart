@@ -3,8 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:gometer/core/layout/breakpoints.dart';
 import 'package:gometer/core/update/update_controller.dart';
 import 'package:gometer/core/update/update_state.dart';
+import 'package:gometer/core/widgets/app_icon.dart';
+import 'package:gometer/core/widgets/page_head.dart';
+import 'package:gometer/core/widgets/setting_row.dart';
 import 'package:gometer/core/widgets/update_progress_dialog.dart';
 
 class AboutScreen extends ConsumerWidget {
@@ -31,203 +35,149 @@ class AboutScreen extends ConsumerWidget {
     final hasUpdate =
         update.status == UpdateStatus.available && update.info != null;
 
+    void goBack() {
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go('/settings');
+      }
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        leading: isMobile
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => context.go('/settings'),
-              )
-            : null,
-        title: const Text('О приложении'),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Center(
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 36,
-                  backgroundColor: scheme.primaryContainer,
-                  child: Icon(
-                    Icons.speed,
-                    size: 40,
-                    color: scheme.onPrimaryContainer,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'GoMeter',
-                  style: TextStyle(fontSize: 24),
-                ),
-                FutureBuilder<PackageInfo>(
-                  future: PackageInfo.fromPlatform(),
-                  builder: (context, snapshot) {
-                    final version =
-                        snapshot.hasData ? snapshot.data!.version : '...';
-                    return Text(
-                      'Версия $version · мокап',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-          if (hasUpdate) ...[
-            const SizedBox(height: 16),
-            Card(
-              color: scheme.primaryContainer,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.system_update,
-                      color: scheme.onPrimaryContainer,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Доступно обновление',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: scheme.onPrimaryContainer,
-                            ),
-                          ),
-                          Text(
-                            '${update.info!.tagName} · нажмите, чтобы загрузить',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: scheme.onPrimaryContainer
-                                  .withValues(alpha: 0.8),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    FilledButton.tonal(
-                      onPressed: () => _startUpdate(context, ref),
-                      style: FilledButton.styleFrom(
-                        backgroundColor:
-                            scheme.onPrimaryContainer.withValues(alpha: 0.15),
-                        foregroundColor: scheme.onPrimaryContainer,
-                      ),
-                      child: const Text('Обновить'),
-                    ),
-                  ],
+      body: SafeArea(
+        child: DesktopNarrow(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+            children: [
+              PageHead(
+                title: 'О приложении',
+                showBack: true,
+                onBack: goBack,
+              ),
+              const SizedBox(height: 12),
+              const AppIcon(
+                size: 116,
+                radius: 58,
+                image: 'assets/images/png/icon-512.png',
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'GoMeter',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.01,
                 ),
               ),
-            ),
-          ],
-          const SizedBox(height: 16),
-          const Text(
-            'Трекер лимитов подписки OpenCode Go — показывает, сколько осталось в 5-часовом, недельном и месячном окнах, и предупреждает, когда лимит близок.',
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          Card(
-            color: scheme.surfaceContainerLow,
-            margin: EdgeInsets.zero,
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.language),
-                  title: const Text('OpenCode Go'),
-                  subtitle: const Text('opencode.ai/go'),
-                  trailing: const Icon(Icons.open_in_new),
-                  onTap: () => _openUrl('https://opencode.ai/go'),
-                ),
-                const Divider(height: 1, indent: 16, endIndent: 16),
-                const ListTile(
-                  leading: Icon(Icons.code),
-                  title: Text('Material Design 3'),
-                  subtitle: Text('Google · светлая и тёмная темы'),
-                ),
-                const Divider(height: 1, indent: 16, endIndent: 16),
-                const ListTile(
-                  leading: Icon(Icons.star),
-                  title: Text('Сделано с заботой'),
-                  subtitle: Text('Flutter · Windows, Linux, macOS, Android'),
+              const SizedBox(height: 4),
+              FutureBuilder<PackageInfo>(
+                future: PackageInfo.fromPlatform(),
+                builder: (context, snapshot) {
+                  final version =
+                      snapshot.hasData ? snapshot.data!.version : '...';
+                  return Text(
+                    'Версия $version · мокап',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  );
+                },
+              ),
+              if (hasUpdate) ...[
+                const SizedBox(height: 16),
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: scheme.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.system_update,
+                        size: 22,
+                        color: scheme.primary,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Доступно обновление',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                                color: scheme.onSurface,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${update.info!.tagName} · улучшенная работа с лимитами',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: scheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      FilledButton(
+                        onPressed: () => _startUpdate(context, ref),
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(0, 38),
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 18),
+                        ),
+                        child: const Text('Обновить'),
+                      ),
+                    ],
+                  ),
                 ),
               ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Платформы',
-            style: TextStyle(
-              color: scheme.primary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 10,
-            children: [
-              _PlatformChip(icon: Icons.desktop_windows, label: 'Windows'),
-              _PlatformChip(icon: Icons.computer, label: 'Linux'),
-              _PlatformChip(icon: Icons.laptop_mac, label: 'macOS'),
-              _PlatformChip(icon: Icons.phone_android, label: 'Android'),
+              const SizedBox(height: 20),
+              SettingsSection(
+                title: 'Доступ',
+                children: [
+                  SettingRow(
+                    label: 'OpenCode Go',
+                    sub: 'opencode.ai/go',
+                    trailing: Icon(
+                      Icons.open_in_new,
+                      size: 18,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                    onTap: () => _openUrl('https://opencode.ai/go'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                isMobile ? 'Windows · Linux · macOS · Android' : 'Windows · Linux · macOS',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '© 2026 GoMeter. Данные об использовании не покидают устройство.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            '© 2026 GoMeter. Данные об использовании не покидают устройство.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 12,
-              color: scheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PlatformChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const _PlatformChip({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
-        border: Border.all(color: scheme.outlineVariant),
-        borderRadius: BorderRadius.circular(9999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 18,
-            color: scheme.onSurfaceVariant,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: scheme.onSurface,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

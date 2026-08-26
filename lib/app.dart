@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gometer/core/theme/app_theme.dart';
 import 'package:gometer/core/theme/theme_provider.dart';
 import 'package:gometer/core/update/update_controller.dart';
+import 'package:gometer/features/usage/providers/limit_monitor.dart';
 
 class GoMeterApp extends ConsumerStatefulWidget {
   final GoRouter router;
@@ -31,6 +32,7 @@ class _GoMeterAppState extends ConsumerState<GoMeterApp> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(limitMonitorProvider);
     final settingsAsync = ref.watch(settingsProvider);
 
     return settingsAsync.when(

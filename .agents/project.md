@@ -35,9 +35,9 @@ Core dependencies:
 
 The source of truth for UI/UX is the Material Design 3 mockup in `docs/gometer-mockup-md3/`:
 
-- Mobile layout: 3-tab bottom navigation (Usage, Notifications, Settings) plus stacked screens (Onboarding, Access Key, About).
-- Desktop layout: navigation rail with 5 destinations (Usage, Notifications, Settings, Key, About).
-- Default theme: dark mode, blue accent seed (`#2196F3`).
+- Mobile layout: 2-tab bottom navigation (Лимиты, Настройки) plus stacked screens (Onboarding, Access Key, About).
+- Desktop layout: static 240px navigation rail with brand block and 3 destinations (Лимиты, Настройки, О приложении).
+- Default theme: dark mode, MD3 seed-based theme (blue accent seed `#2196F3` as a default; the palette stays app-defined, not the mockup's LocalSend colors).
 - Accent seeds: auto, blue, violet, green, orange, pink.
 
 Legacy mockups live in `docs/gometer-mockup/` and `docs/gometer-mockup-standalone/` and should not be used as the design basis.

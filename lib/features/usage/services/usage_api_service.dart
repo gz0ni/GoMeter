@@ -20,6 +20,7 @@ class UsageApiService {
           'User-Agent': 'GoMeter',
         },
         responseType: ResponseType.json,
+        validateStatus: (_) => true,
       ),
     );
 

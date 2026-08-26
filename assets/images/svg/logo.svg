@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="charge" x1="512.0" y1="182.0" x2="732.8" y2="266.8" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2196F3"/>
+      <stop offset="1" stop-color="#8E44EC"/>
+    </linearGradient>
+    <mask id="cutout">
+      <rect width="1024" height="1024" fill="#FFFFFF"/>
+      <path d="M 745.3 61.2 Q 782.3 241.7 962.8 278.7 Q 782.3 315.7 745.3 496.2 Q 708.3 315.7 527.8 278.7 Q 708.3 241.7 745.3 61.2 Z"
+            fill="#000000"/>
+    </mask>
+  </defs>
+  <g mask="url(#cutout)">
+    <path fill="#2196F3" fill-rule="evenodd"
+          d="M 512 112 A 400 400 0 1 1 512 912 A 400 400 0 1 1 512 112 Z M 512 252 A 260 260 0 1 1 512 772 A 260 260 0 1 1 512 252 Z"/>
+    <path d="M 512.0 182.0 A 330 330 0 0 1 732.8 266.8"
+          fill="none" stroke="url(#charge)" stroke-width="140" stroke-linecap="round"/>
+  </g>
+  <path d="M 745.3 128.7 Q 770.8 253.2 895.3 278.7 Q 770.8 304.2 745.3 428.7 Q 719.8 304.2 595.3 278.7 Q 719.8 253.2 745.3 128.7 Z"
+        fill="#8E44EC"/>
+</svg>

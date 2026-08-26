@@ -1,18 +1,25 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gometer/core/layout/breakpoints.dart';
 import 'package:gometer/core/settings/settings_repository.dart';
 import 'package:gometer/core/theme/app_theme.dart';
 import 'package:gometer/core/theme/theme_provider.dart';
 import 'package:gometer/core/update/update_controller.dart';
-import 'dart:io' show Platform;
 import 'package:gometer/core/update/update_state.dart';
 import 'package:gometer/core/utils/opencode_auth.dart';
 import 'package:gometer/core/widgets/color_dot.dart';
-import 'package:gometer/core/widgets/filter_chip.dart';
+import 'package:gometer/core/widgets/dropdown_pill.dart';
+import 'package:gometer/core/widgets/phone_notif.dart';
+import 'package:gometer/core/widgets/setting_row.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
+
+  static const _intervalOptions = [1, 3, 5];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -58,277 +65,201 @@ class SettingsScreen extends ConsumerWidget {
       if (context.mounted) context.go('/onboarding');
     }
 
+    Widget versionText() {
+      return FutureBuilder<PackageInfo>(
+        future: PackageInfo.fromPlatform(),
+        builder: (context, snapshot) {
+          final version = snapshot.hasData ? snapshot.data!.version : '...';
+          return Text(
+            'Текущая версия $version',
+            style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant),
+          );
+        },
+      );
+    }
+
+    final chevron = Icon(
+      Icons.chevron_right,
+      size: 20,
+      color: scheme.onSurfaceVariant,
+    );
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Настройки')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _Section(
-            title: 'Лимиты',
+      body: SafeArea(
+        child: DesktopNarrow(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
             children: [
-              _IconTile(
-                icon: Icons.schedule,
-                title: 'Интервал проверки',
-                subtitle: 'Как часто обновлять лимиты',
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: Wrap(
-                  spacing: 8,
-                  children: [1, 3, 5].map((m) {
-                    return FilterChipWidget(
-                      label: '$m мин',
-                      selected: settings.checkIntervalMinutes == m,
-                      onSelected: (_) => notifier.setCheckInterval(m),
-                    );
-                  }).toList(),
+              Text(
+                'Настройки',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w500,
+                  color: scheme.onSurface,
                 ),
               ),
+              const SizedBox(height: 8),
+              SettingsSection(
+                title: 'Внешний вид',
+                children: [
+                  SettingRow(
+                    label: 'Тема',
+                    trailing: DropdownPill<AppThemeMode>(
+                      value: settings.themeMode,
+                      items: [
+                        for (final mode in AppThemeMode.values)
+                          DropdownPillItem(
+                            value: mode,
+                            label: switch (mode) {
+                              AppThemeMode.light => 'Светлая',
+                              AppThemeMode.dark => 'Тёмная',
+                              AppThemeMode.system => 'Системная',
+                            },
+                          ),
+                      ],
+                      onChanged: (v) => notifier.setThemeMode(v),
+                    ),
+                  ),
+                  const SettingRow(label: 'Цвет акцента'),
+                  Wrap(
+                    spacing: 14,
+                    runSpacing: 10,
+                    children: AccentSeed.values.map((seed) {
+                      return ColorDot(
+                        isAuto: seed == AccentSeed.auto,
+                        color: seed == AccentSeed.auto ? null : seed.color,
+                        selected: settings.seed == seed,
+                        onTap: () => notifier.setSeed(seed),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+              SettingsSection(
+                title: 'Обновление',
+                showDivider: true,
+                children: [
+                  SettingRow(
+                    label: 'Проверить обновления',
+                    subWidget: versionText(),
+                    trailing: chevron,
+                    onTap: checkForUpdate,
+                  ),
+                  SwitchRow(
+                    label: 'Автопроверка обновлений',
+                    sub: 'При запуске приложения',
+                    value: settings.autoCheckUpdate,
+                    onChanged: (v) => notifier.setAutoCheckUpdate(v),
+                  ),
+                  SettingRow(
+                    label: 'Интервал проверки',
+                    trailing: DropdownPill<int>(
+                      value: settings.checkIntervalMinutes,
+                      items: [
+                        for (final m in _intervalOptions)
+                          DropdownPillItem(value: m, label: '$m мин'),
+                      ],
+                      onChanged: (v) => notifier.setCheckInterval(v),
+                    ),
+                  ),
+                ],
+              ),
+              SettingsSection(
+                title: 'Уведомления',
+                showDivider: true,
+                children: [
+                  const PhoneNotif(
+                    title: 'Лимит 80% · 5-часовое окно',
+                    text: 'Осталось 20%. Окно сбросится примерно через 47 минут.',
+                  ),
+                  const SizedBox(height: 8),
+                  SwitchRow(
+                    label: 'Показывать уведомления',
+                    sub: 'О достижении порогов',
+                    value: settings.notificationsEnabled,
+                    onChanged: (v) => notifier.setNotificationsEnabled(v),
+                  ),
+                  SwitchRow(
+                    label: 'Порог 80%',
+                    sub: '«Почти у предела»',
+                    value: settings.threshold80,
+                    onChanged: settings.notificationsEnabled
+                        ? (v) => notifier.setThreshold80(v)
+                        : null,
+                  ),
+                  SwitchRow(
+                    label: 'Порог 95%',
+                    sub: '«Близко к лимиту»',
+                    value: settings.threshold95,
+                    onChanged: settings.notificationsEnabled
+                        ? (v) => notifier.setThreshold95(v)
+                        : null,
+                  ),
+                ],
+              ),
+              SettingsSection(
+                title: 'Автозапуск',
+                showDivider: true,
+                children: [
+                  SwitchRow(
+                    label: 'Старт вместе с системой',
+                    sub: 'Запускать GoMeter при входе в систему',
+                    value: settings.autostart,
+                    onChanged: (v) => notifier.setAutostart(v),
+                  ),
+                  if (settings.autostart)
+                    SwitchRow(
+                      label: 'Тихий старт',
+                      sub: 'Открываться в трее без окна',
+                      value: settings.quietStart,
+                      onChanged: (v) => notifier.setQuietStart(v),
+                    ),
+                ],
+              ),
+              SettingsSection(
+                title: 'Доступ',
+                showDivider: true,
+                children: [
+                  SettingRow(
+                    label: 'Ключ доступа',
+                    sub: 'Ввод или импорт ключа API',
+                    trailing: chevron,
+                    onTap: () => context.go('/key'),
+                  ),
+                  if (!Platform.isAndroid && !Platform.isIOS)
+                    SettingRow(
+                      label: 'Импорт из opencode CLI',
+                      sub: opencodeAuthHintPath(),
+                      trailing: chevron,
+                      onTap: importFromCli,
+                    ),
+                ],
+              ),
+              SettingsSection(
+                title: 'Данные',
+                showDivider: true,
+                children: [
+                  SettingRow(
+                    label: 'Очистить данные',
+                    sub: 'Сбросить кэш и ключ доступа',
+                    danger: true,
+                    trailing: chevron,
+                    onTap: clearData,
+                  ),
+                  SettingRow(
+                    label: 'О приложении',
+                    sub: update.status == UpdateStatus.available
+                        ? 'Доступно обновление'
+                        : 'Версия и информация',
+                    trailing: chevron,
+                    onTap: () => context.go('/about'),
+                  ),
+                ],
+              ),
             ],
           ),
-          _Section(
-            title: 'Обновления',
-            children: [
-              SwitchListTile(
-                secondary: _TileIcon(icon: Icons.update),
-                title: const Text('Проверять обновления'),
-                subtitle: const Text('Автоматически при запуске'),
-                value: settings.autoCheckUpdate,
-                onChanged: (v) => notifier.setAutoCheckUpdate(v),
-              ),
-              const Divider(height: 1, indent: 16, endIndent: 16),
-              _IconTile(
-                icon: Icons.system_update_alt,
-                title: 'Проверить обновления',
-                subtitle: 'Поиск новой версии вручную',
-                trailing: const Icon(Icons.chevron_right),
-                onTap: checkForUpdate,
-              ),
-            ],
-          ),
-          _Section(
-            title: 'Внешний вид',
-            children: [
-              _IconTile(
-                icon: Icons.palette,
-                title: 'Тема',
-                subtitle: 'Авто, светлая или тёмная',
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: Wrap(
-                  spacing: 8,
-                  children: AppThemeMode.values.map((mode) {
-                    return FilterChipWidget(
-                      label: switch (mode) {
-                        AppThemeMode.light => 'Светлая',
-                        AppThemeMode.dark => 'Тёмная',
-                        AppThemeMode.system => 'Системная',
-                      },
-                      selected: settings.themeMode == mode,
-                      onSelected: (_) => notifier.setThemeMode(mode),
-                    );
-                  }).toList(),
-                ),
-              ),
-              _IconTile(
-                icon: Icons.format_color_fill,
-                title: 'Цвет акцента',
-                subtitle: 'Основной цвет интерфейса',
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: Wrap(
-                  spacing: 12,
-                  children: AccentSeed.values.map((seed) {
-                    return ColorDot(
-                      isAuto: seed == AccentSeed.auto,
-                      color: seed == AccentSeed.auto ? null : seed.color,
-                      selected: settings.seed == seed,
-                      onTap: () => notifier.setSeed(seed),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
-          ),
-          _Section(
-            title: 'Уведомления',
-            children: [
-              SwitchListTile(
-                secondary: _TileIcon(icon: Icons.notifications_active),
-                title: const Text('Показывать уведомления'),
-                subtitle:
-                    const Text('О достижении порогов 80% и 95%'),
-                value: settings.notificationsEnabled,
-                onChanged: (v) => notifier.setNotificationsEnabled(v),
-              ),
-              const Divider(height: 1, indent: 16, endIndent: 16),
-              SwitchListTile(
-                secondary: _TileIcon(icon: Icons.sensors),
-                title: const Text('Порог 80%'),
-                subtitle: const Text('«Почти у предела»'),
-                value: settings.threshold80,
-                onChanged: settings.notificationsEnabled
-                    ? (v) => notifier.setThreshold80(v)
-                    : null,
-              ),
-              const Divider(height: 1, indent: 16, endIndent: 16),
-              SwitchListTile(
-                secondary: _TileIcon(icon: Icons.priority_high),
-                title: const Text('Порог 95%'),
-                subtitle: const Text('«Близко к лимиту»'),
-                value: settings.threshold95,
-                onChanged: settings.notificationsEnabled
-                    ? (v) => notifier.setThreshold95(v)
-                    : null,
-              ),
-            ],
-          ),
-          _Section(
-            title: 'Доступ',
-            children: [
-              _IconTile(
-                icon: Icons.key,
-                title: 'Ключ доступа',
-                subtitle: 'Ввод или импорт ключа API',
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.go('/key'),
-              ),
-              const Divider(height: 1, indent: 16, endIndent: 16),
-              if (!Platform.isAndroid && !Platform.isIOS)
-                _IconTile(
-                  icon: Icons.file_download,
-                  title: 'Импорт из opencode CLI',
-                  subtitle: opencodeAuthHintPath(),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: importFromCli,
-                ),
-            ],
-          ),
-          _Section(
-            title: 'Прочее',
-            children: [
-              _IconTile(
-                icon: Icons.delete,
-                title: 'Очистить данные',
-                subtitle: 'Сбросить кэш и ключ доступа',
-                iconColor: scheme.error,
-                textColor: scheme.error,
-                trailing: const Icon(Icons.chevron_right),
-                onTap: clearData,
-              ),
-              const Divider(height: 1, indent: 16, endIndent: 16),
-              _IconTile(
-                icon: Icons.info,
-                title: 'О приложении',
-                subtitle: update.status == UpdateStatus.available &&
-                        update.info != null
-                    ? 'Доступно ${update.info!.tagName}'
-                    : 'Версия и информация',
-                trailing: Icon(
-                  Icons.chevron_right,
-                  color: update.status == UpdateStatus.available
-                      ? Colors.amber
-                      : null,
-                ),
-                onTap: () => context.go('/about'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Section extends StatelessWidget {
-  final String title;
-  final List<Widget> children;
-
-  const _Section({required this.title, required this.children});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              color: scheme.primary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Card(
-            color: scheme.surfaceContainerLow,
-            margin: EdgeInsets.zero,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: children,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _IconTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Widget? trailing;
-  final VoidCallback? onTap;
-  final Color? iconColor;
-  final Color? textColor;
-
-  const _IconTile({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    this.trailing,
-    this.onTap,
-    this.iconColor,
-    this.textColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: _TileIcon(icon: icon, color: iconColor),
-      title: Text(
-        title,
-        style: TextStyle(color: textColor),
-      ),
-      subtitle: Text(subtitle),
-      trailing: trailing,
-      onTap: onTap,
-    );
-  }
-}
-
-class _TileIcon extends StatelessWidget {
-  final IconData icon;
-  final Color? color;
-
-  const _TileIcon({required this.icon, this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return CircleAvatar(
-      backgroundColor: color == null
-          ? scheme.secondaryContainer
-          : scheme.errorContainer,
-      child: Icon(
-        icon,
-        color: color ?? scheme.onSecondaryContainer,
+        ),
       ),
     );
   }
