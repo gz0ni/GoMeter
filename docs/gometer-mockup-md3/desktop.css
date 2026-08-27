@@ -24,26 +24,36 @@ body {
    Боковая панель
    ========================================================= */
 .rail {
-  width: 240px;
+  width: 260px;
   flex: none;
   background: #1C1C1C;
   border-right: 1px solid var(--hairline);
-  padding: 16px 12px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 body.theme-light .rail { background: #ECE9E4; }
 
 .rail-brand {
   display: flex;
   align-items: center;
-  padding: 6px 14px 20px;
+  padding: 6px 12px 20px;
+}
+.rail-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
 }
 .rail-title {
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: .01em;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.rail-sub {
+  font-size: 12px;
+  color: var(--on-surface-variant);
 }
 
 .rail-item {
@@ -51,21 +61,21 @@ body.theme-light .rail { background: #ECE9E4; }
   align-items: center;
   gap: 14px;
   width: 100%;
-  min-height: 48px;
+  min-height: 56px;
   padding: 0 14px;
   border: none;
-  border-radius: 10px;
+  border-radius: 24px;
   background: transparent;
   color: var(--on-surface-variant);
   font-family: inherit;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: 0;
   text-align: left;
   cursor: pointer;
   transition: color var(--dur), background var(--dur);
 }
-.rail-item .material-symbols-outlined { font-size: 22px; }
+.rail-item .material-symbols-outlined { font-size: 24px; }
 .rail-item:hover { background: rgba(255, 255, 255, .06); color: var(--on-surface); }
 .rail-item.is-active { background: var(--nav-active); color: var(--on-surface); }
 .rail-item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }

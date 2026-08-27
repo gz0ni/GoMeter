@@ -20,8 +20,8 @@
 
 ### Theme (`lib/core/theme/`)
 
-- `app_theme.dart` maps accent seeds to concrete `Color` values and builds a `ThemeData` from `ColorScheme.fromSeed` plus `AppExtraColors` for warn/amber/red level states.
-- `app_extra_colors.dart` — `AppExtraColors` used by the theme for warn/amber/red states.
+- `app_theme.dart` maps accent seeds to concrete `Color` values; `buildTheme` uses `ColorScheme.fromSeed` (or a dynamic scheme from `DynamicColorBuilder` in `app.dart` when `AccentSeed.auto` is selected and one is available).
+- `app_extra_colors.dart` — `UsageLevel` (green/amber/red) helpers and M3 role mapping: green→`primary`, amber→`tertiary`, red→`error` (no custom warn palette).
 - `theme_provider.dart` exposes `settingsProvider` as an `AsyncNotifier` and `settingsRepositoryProvider` as a sync provider overridden in `main()`.
 
 ### Auth (`lib/core/utils/`)

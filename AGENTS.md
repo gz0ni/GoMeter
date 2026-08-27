@@ -28,6 +28,7 @@ Read these only when the task touches their area:
 
 ## Highest Priority Rules
 
+- NEVER run `flutter build` or `dart setup.dart` locally without an explicit user request. Builds and packaging go through GitHub Actions (triggered by `v*` tags, see `.github/workflows/build.yaml` and `.agents/commands.md`). Verification on the local machine is limited to `flutter analyze` + `flutter test`; request a tag push if a built artifact is needed.
 - Verify with `flutter analyze` and `flutter test` before claiming work is complete.
 - The design basis is `docs/gometer-mockup-md3/`. Match it for UI work; call the `material-3` skill for MD3 components, themes, and audits.
 - UI text is in Russian; code identifiers, commits, and docs are in English.

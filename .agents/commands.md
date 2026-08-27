@@ -27,15 +27,12 @@ flutter test --reporter expanded
 
 ## Build
 
-Debug desktop build:
+**Local builds are forbidden without an explicit user request.** Builds and packaging are done by GitHub Actions on `v*` tags (`.github/workflows/build.yaml`). If an artifact is needed, ask the user to push a tag instead.
+
+For reference, the commands the CI runs (never execute locally unless the user explicitly asks):
 
 ```bash
 flutter build linux --debug
-```
-
-Other platforms:
-
-```bash
 flutter build android
 flutter build ios
 flutter build macos

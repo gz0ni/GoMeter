@@ -28,23 +28,24 @@ Task checklist. The agent maintains this file: creates items, marks them done, k
   - [x] Fix broken icon paths in `linux/packaging/deb/make_config.yaml` and `linux/packaging/rpm/make_config.yaml`: `icon: ./assets/images/icon.png` (deleted) → `./assets/images/png/icon-512.png` — otherwise Linux CI build fails
   - [x] Verified: `flutter analyze`, `flutter test` (77 tests), `flutter build windows`
   - [x] Commit + `git push origin main` + `git tag v0.2.2` + `git push origin v0.2.2` → CI build (android/windows/linux/macos) + GitHub Release. TRACK THE WORKFLOW RUN and report status/release URL. BUILD LOCALLY ONLY WITH EXPLICIT USER REQUEST — builds go through GitHub Actions, not local `setup.dart`.
-- [ ] **Auto accent (Material You dynamic color)**: `AccentSeed.auto` currently maps to hardcoded `Colors.deepPurple` — not the wallpaper/accent-driven dynamic color users expect (like Google apps / LocalSend).
-  - [ ] Add `dynamic_color: ^2.1.0` (material.io, verified — supports Android S+ wallpaper, Linux XDG portal/GTK, macOS app accent, Windows accent color; iOS falls back to seed)
-  - [ ] `lib/app.dart`: wrap `MaterialApp` in `DynamicColorBuilder`; pass light/dark dynamic schemes into the theme
-  - [ ] `lib/core/theme/app_theme.dart` `buildTheme`: when `seed == AccentSeed.auto` and a dynamic scheme is available → use it; keep current fallback otherwise
-  - [ ] Harmonize custom `AppExtraColors` warn/palette colors with the dynamic scheme (`harmonized()` / `harmonizeWith`) and/or normalize into the M3 color roles
-  - [ ] Settings UI: `ColorDot` for auto already exists — verify label/behavior; maybe show the resolved accent color dot
-  - [ ] Compiled/verified: `flutter analyze`, `flutter test`, manual check on Android (wallpaper change re-themes app)
-- [ ] **Full Material 3 audit** (base = m3.material.io, pure M3 wins over `docs/gometer-mockup-md3/`):
-  - [ ] Load repo skills `material-3` + `ui-work`; inventory every screen/widget against M3:
-    - Typography → M3 type scale (`TextTheme` roles: headlineSmall, titleLarge, bodyMedium, labelLarge...) instead of hardcoded fontSize/weight
-    - Shape → M3 corner tokens: cards 12 (and 28 only for large/extra-large), no ad-hoc 28/22/10
-    - Components: replace pill bottom nav with M3 `NavigationBar` (mobile), desktop rail → M3 `NavigationRail` or `NavigationDrawer`; cards → M3 `Card` variants; text fields → M3 `TextField`/filled; chips/progress/dialogs per spec (LinearProgressIndicator 4dp, AlertDialog 28)
-    - Colors → M3 roles only (primary/secondary/tertiary/error + container/fixed variants, surface tones); remove `AppExtraColors` warn hack by mapping amber level to M3 roles (e.g. tertiary/warning is not a token — decide error vs tertiary) 
-    - Accent palette (5 seeds + auto) → keep, but rebuild via `ColorScheme.fromSeed` + dynamic color; `ColorDot` styling per M3
-  - [ ] Update `docs/gometer-mockup-md3/` separately AFTER the app (mockup is design history; app is source of truth now)
-  - [ ] Regression: `flutter analyze`, `flutter test`, `flutter build windows` + screenshot pass on mobile/desktop, light/dark
-- [ ] Add `Requires: libayatana-appindicator3-0.1` to `linux/packaging/rpm/make_config.yaml` — deb got the runtime dep, rpm did not (found 2026-08-27, see bugs.md/gotchas.md).
+- [x] **Auto accent (Material You dynamic color)**: `AccentSeed.auto` currently maps to hardcoded `Colors.deepPurple` — not the wallpaper/accent-driven dynamic color users expect (like Google apps / LocalSend).
+  - [x] Add `dynamic_color` — NOTE: use `^1.9.0`, NOT `^2.1.0`: 2.x depends on `material_ui` and returns its own `ColorScheme` type, incompatible with `flutter/material`'s `ColorScheme` (fails to compile). 1.9.0 supports Android S+ wallpaper, Linux XDG portal/GTK, macOS app accent, Windows accent color; iOS falls back to seed.
+  - [x] `lib/app.dart`: wrap `MaterialApp` in `DynamicColorBuilder`; pass light/dark dynamic schemes into the theme
+  - [x] `lib/core/theme/app_theme.dart` `buildTheme`: when `seed == AccentSeed.auto` and a dynamic scheme is available → use it; otherwise fallback to `AccentSeed.auto.color` (now `#2196F3` blue, user-approved; was `deepPurple`)
+  - [x] Harmonize custom `AppExtraColors` warn/palette colors with the active scheme: `AppExtraColors.forScheme(scheme)` uses `harmonizeWith(scheme.primary)` (`harmonized()` covers built-in scheme colors only; we need a custom extension)
+  - [x] Settings UI: `ColorDot` for auto already exists — behavior verified, unchanged (minimal diff)
+  - [x] Compiled/verified: `flutter analyze`, `flutter test` (82 tests); `app_theme_test.dart` (5 tests: auto+dynamic dark/light, auto+no-dynamic fallback, explicit-seed ignores dynamic, warn harmonization)
+  - [ ] Manual check on hardware: Android wallpaper change re-themes app; desktop accent color change re-themes app
+- [~] **Full Material 3 audit** (base = m3.material.io, pure M3 wins over `docs/gometer-mockup-md3/`):
+  - [x] Load repo skills `material-3` + `ui-work`; inventory every screen/widget against M3:
+    - [x] Typography → M3 type scale (`TextTheme` roles: headlineSmall, titleLarge, titleMedium, bodyMedium/large/small, labelLarge) instead of hardcoded fontSize/weight — all widgets/screens (status_card, limit_card, push_card, phone_notif, setting_row, section_title, page_head, brand_logo, dropdown_pill, about/onboarding/access_key/settings/usage screens)
+    - [x] Shape → M3 corner tokens: cards 12 (28 kept only for the large StatusCard), no ad-hoc 10/17/22/9999 (chip → M3 default 8, dropdown pill → 24 full on 48dp button, progress bar 4dp)
+    - [x] Components: mobile pill nav → M3 `NavigationBar`, desktop rail → M3 `NavigationDrawer`; chips → M3 defaults; `LinearProgressIndicator` 4dp; buttons M3 heights (removed 38/50 overrides); `Switch`/`AlertDialog` already M3
+    - [x] Colors → M3 roles only; `AppExtraColors` warn hack removed — amber level mapped to `tertiary` (green→primary, red→error); `AppExtraColors.forScheme` + harmonize gone; app_theme_test updated (5 tests)
+    - [ ] Accent palette (5 seeds + auto) → keep, but rebuild via `ColorScheme.fromSeed` + dynamic color; `ColorDot` styling per M3 — needs visual pass (see regression below)
+  - [x] Update `docs/gometer-mockup-md3/` separately AFTER the app (mockup is design history; app is source of truth now): styles.css/desktop.css/desktop.html synced to current app state — M3 type roles (22/16/14/12/28px), card radii 12 (status-card 28), chip/menu/field 8, dropdown 24, buttons 40h, progress 4dp, ColorDot 56, NavigationBar (indicator pill + surface bar), NavigationDrawer rail (260px, 56px items, radius 24, brand titleMedium + sub)
+  - [~] Regression: `flutter analyze` ✅, `flutter test` (82 tests) ✅, `flutter build windows` + screenshot pass on mobile/desktop, light/dark — **NOTE: NO local builds (rule in AGENTS.md) — do artifact/visual checks via GitHub Actions tag (v*) with explicit user request**
+- [x] Add `requires: libayatana-appindicator-gtk3` to `linux/packaging/rpm/make_config.yaml` — deb got the runtime dep, rpm did not (found 2026-08-27, see bugs.md/gotchas.md). NOTE: RPM variant name (Fedora/RHEL/EPEL); deb/OpenSUSE name is `libayatana-appindicator3-0.1`/`libayatana-appindicator3-1`. Mapper key verified in flutter_distributor (FlClash branch) `make_rpm_config.dart`: `requires` → `Requires:` in preamble.
 - [ ] Confirm `opencode_auth.dart` reading of the local auth.json works on all desktop platforms — Windows verified (nested per-provider format, `opencode-go.key`); Linux/macOS paths are unit-tested, hardware check pending.
 - [x] Add focused provider/widget tests for settings, usage, and update flows: `settings_autostart_test.dart` (5), `usage_api_service_test.dart` (5), `update_service_test.dart` (4). Verified: 33 tests green.
 - [x] Wire `usageProvider` to `UsageApiService` behind an interface and remove the remaining mock path — service is overridden via `usageApiServiceProvider` in `main()`; no mock left in `lib/` (verified by grep).
