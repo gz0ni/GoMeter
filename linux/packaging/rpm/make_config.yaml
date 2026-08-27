@@ -4,6 +4,9 @@ packager: gz0ni
 packagerEmail: gz0ni@users.noreply.github.com
 license: Other
 
+requires:
+  - libayatana-appindicator-gtk3
+
 priority: optional
 section: x11
 installed_size: 6604
