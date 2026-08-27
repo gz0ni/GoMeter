@@ -22,12 +22,12 @@ Task checklist. The agent maintains this file: creates items, marks them done, k
 - [x] Replace `Icons.speed` brand placeholders (BrandLogo, onboarding hero, about hero, notification preview) with the GoMeter logo from `assets/images/png/`.
 - [x] Implement real autostart ("Start with system") and quiet start ("Тихий старт"): `AutostartService` (Windows reg.exe / Linux .desktop / macOS LaunchAgent / no-op mobile), wired into `SettingsNotifier`, `--quiet` start arg starts in tray (`tray_manager` + `window_manager`). Verified: `flutter analyze`, `flutter test` (24 tests), `flutter build windows`.
 - [x] Verify real OpenCode Go API integration end to end (usage fetch with real key) — `test/e2e/usage_api_e2e_test.dart` fetched real windows: rolling 3%, weekly 41%, monthly 69% (2026-08-26, Windows).
-- [ ] **v0.2.2 release prep**:
+- [x] **v0.2.2 release prep**:
   - [x] Restore `env.json` to `{"APP_ENV":"pre"}` (local setup.dart run polluted it to `stable`)
   - [x] `pubspec.yaml`: version → `0.2.2+4`; `flutter_launcher_icons`: add `adaptive_icon_background` + `adaptive_icon_foreground` (`assets/images/png/icon-1024.png`) for Android adaptive icon → `dart run flutter_launcher_icons`
   - [x] Fix broken icon paths in `linux/packaging/deb/make_config.yaml` and `linux/packaging/rpm/make_config.yaml`: `icon: ./assets/images/icon.png` (deleted) → `./assets/images/png/icon-512.png` — otherwise Linux CI build fails
   - [x] Verified: `flutter analyze`, `flutter test` (77 tests), `flutter build windows`
-  - [ ] Commit + `git push origin main` + `git tag v0.2.2` + `git push origin v0.2.2` → CI build (android/windows/linux/macos) + GitHub Release. TRACK THE WORKFLOW RUN and report status/release URL. BUILD LOCALLY ONLY WITH EXPLICIT USER REQUEST — builds go through GitHub Actions, not local `setup.dart`.
+  - [x] Commit + `git push origin main` + `git tag v0.2.2` + `git push origin v0.2.2` → CI build (android/windows/linux/macos) + GitHub Release. TRACK THE WORKFLOW RUN and report status/release URL. BUILD LOCALLY ONLY WITH EXPLICIT USER REQUEST — builds go through GitHub Actions, not local `setup.dart`.
 - [ ] **Auto accent (Material You dynamic color)**: `AccentSeed.auto` currently maps to hardcoded `Colors.deepPurple` — not the wallpaper/accent-driven dynamic color users expect (like Google apps / LocalSend).
   - [ ] Add `dynamic_color: ^2.1.0` (material.io, verified — supports Android S+ wallpaper, Linux XDG portal/GTK, macOS app accent, Windows accent color; iOS falls back to seed)
   - [ ] `lib/app.dart`: wrap `MaterialApp` in `DynamicColorBuilder`; pass light/dark dynamic schemes into the theme
