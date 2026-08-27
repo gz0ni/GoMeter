@@ -1,3 +1,4 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,24 +37,31 @@ class _GoMeterAppState extends ConsumerState<GoMeterApp> {
     final settingsAsync = ref.watch(settingsProvider);
 
     return settingsAsync.when(
-      data: (settings) {
-        final brightness =
-            WidgetsBinding.instance.platformDispatcher.platformBrightness;
-        final theme = buildTheme(settings, brightness);
+      data: (settings) => DynamicColorBuilder(
+        builder: (lightDynamic, darkDynamic) {
+          final brightness =
+              WidgetsBinding.instance.platformDispatcher.platformBrightness;
+          final theme = buildTheme(
+            settings,
+            brightness,
+            dynamicLight: lightDynamic,
+            dynamicDark: darkDynamic,
+          );
 
-        return MaterialApp.router(
-          title: 'GoMeter',
-          debugShowCheckedModeBanner: false,
-          localizationsDelegates: GlobalMaterialLocalizations.delegates,
-          supportedLocales: const [
-            Locale('ru', 'RU'),
-            Locale('en', 'US'),
-          ],
-          locale: const Locale('ru', 'RU'),
-          theme: theme,
-          routerConfig: widget.router,
-        );
-      },
+          return MaterialApp.router(
+            title: 'GoMeter',
+            debugShowCheckedModeBanner: false,
+            localizationsDelegates: GlobalMaterialLocalizations.delegates,
+            supportedLocales: const [
+              Locale('ru', 'RU'),
+              Locale('en', 'US'),
+            ],
+            locale: const Locale('ru', 'RU'),
+            theme: theme,
+            routerConfig: widget.router,
+          );
+        },
+      ),
       loading: () => const MaterialApp(
         home: Scaffold(
           body: Center(child: CircularProgressIndicator()),
