@@ -239,7 +239,7 @@ jobs:
               links = grouped[os]
               if not links:
                   continue
-              cell = ' \\u00b7 '.join(
+              cell = ' \u00b7 '.join(
                   f'[{badge_md}]({base}/{name})' for badge_md, name in links
               )
               lines.append(f'| {os} | {cell} |')
