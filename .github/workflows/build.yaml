@@ -236,9 +236,13 @@ jobs:
               '|---|---|',
           ]
           for os in os_order:
-              for badge_md, name in grouped[os]:
-                  url = f'{base}/{name}'
-                  lines.append(f'| {os} | [{badge_md}]({url}) |')
+              links = grouped[os]
+              if not links:
+                  continue
+              cell = ' \\u00b7 '.join(
+                  f'[{badge_md}]({base}/{name})' for badge_md, name in links
+              )
+              lines.append(f'| {os} | {cell} |')
 
           with open('RELEASE_BODY.md', 'w') as f:
               f.write('\n'.join(lines))

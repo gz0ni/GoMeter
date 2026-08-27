@@ -1,6 +1,15 @@
 import 'release_info.dart';
 
-enum UpdateStatus { idle, checking, available, downloading, ready, installing, error }
+enum UpdateStatus {
+  idle,
+  checking,
+  available,
+  downloading,
+  ready,
+  installing,
+  done,
+  error,
+}
 
 class UpdateState {
   final UpdateStatus status;

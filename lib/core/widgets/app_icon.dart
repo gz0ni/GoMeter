@@ -20,8 +20,9 @@ class AppIcon extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: scheme.primaryContainer,
+        color: scheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(radius),
+        border: Border.all(color: scheme.outlineVariant),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius),

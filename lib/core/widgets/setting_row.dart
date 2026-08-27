@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gometer/core/widgets/m3_switch.dart';
 
 class SettingRow extends StatelessWidget {
   final String label;
@@ -83,16 +84,10 @@ class SwitchRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
     return SettingRow(
       label: label,
       sub: sub,
-      trailing: Switch(
-        value: value,
-        onChanged: onChanged,
-        activeThumbColor: scheme.onPrimary,
-      ),
+      trailing: M3Switch(value: value, onChanged: onChanged),
     );
   }
 }

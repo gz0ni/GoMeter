@@ -4,7 +4,7 @@ import 'package:path/path.dart' as p;
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 
-class TrayController with TrayListener {
+class TrayController with TrayListener, WindowListener {
   TrayController._();
 
   static final TrayController instance = TrayController._();
@@ -14,7 +14,7 @@ class TrayController with TrayListener {
   Future<void> attachToTray() async {
     if (_attached) return;
     await windowManager.ensureInitialized();
-    await windowManager.hide();
+    windowManager.addListener(this);
     await trayManager.setIcon(_resolveIconPath());
     await trayManager.setToolTip('GoMeter');
     await trayManager.setContextMenu(
@@ -37,6 +37,11 @@ class TrayController with TrayListener {
   @override
   void onTrayIconMouseDown() {
     showWindow();
+  }
+
+  @override
+  void onWindowClose() {
+    windowManager.hide();
   }
 
   @override

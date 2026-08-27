@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:window_manager/window_manager.dart';
 import 'app.dart';
 import 'core/notifications/flutter_local_notifications_service.dart';
 import 'core/notifications/notification_history.dart';
@@ -37,7 +38,25 @@ void main() async {
   final updateService = UpdateService(dio, packageInfo);
   final usageApiService = UsageApiService(dio);
 
-  if (quietStart) {
+  final isDesktop = !Platform.isAndroid && !Platform.isIOS;
+  if (isDesktop) {
+    await windowManager.ensureInitialized();
+    await windowManager.waitUntilReadyToShow(
+      const WindowOptions(
+        size: Size(1000, 700),
+        minimumSize: Size(640, 480),
+        center: true,
+        title: 'GoMeter',
+      ),
+      () async {
+        if (quietStart) {
+          await windowManager.hide();
+        } else {
+          await windowManager.show();
+        }
+      },
+    );
+    await windowManager.setPreventClose(true);
     await TrayController.instance.attachToTray();
   }
 

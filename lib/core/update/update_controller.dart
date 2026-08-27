@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'installer.dart';
@@ -80,7 +79,7 @@ class UpdateController extends Notifier<UpdateState> {
     state = state.copyWith(status: UpdateStatus.installing);
     try {
       await Installer().install(path);
-      if (!Platform.isAndroid) exit(0);
+      state = state.copyWith(status: UpdateStatus.done);
     } catch (e) {
       state = state.copyWith(status: UpdateStatus.error, error: e.toString());
     }

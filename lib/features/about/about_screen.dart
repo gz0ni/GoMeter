@@ -77,7 +77,7 @@ class AboutScreen extends ConsumerWidget {
                   final version =
                       snapshot.hasData ? snapshot.data!.version : '...';
                   return Text(
-                    'Версия $version · мокап',
+                    'Версия $version',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 13,

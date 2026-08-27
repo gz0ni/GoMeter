@@ -131,6 +131,7 @@ void main() {
     await tester.tap(find.text('О приложении'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('мокап'), findsOneWidget);
+    expect(find.textContaining('Версия'), findsOneWidget);
+    expect(find.textContaining('мокап'), findsNothing);
   });
 }
