@@ -113,8 +113,24 @@ void main() {
     test('prefers dedicated setup asset on windows', () {
       final service = _service(200, {}, _info('0.1.1'));
       expect(
-        service.pickAsset(release)!.name,
+        service.pickAsset(release, platform: 'windows')!.name,
         'gometer-windows-amd64-setup.exe',
+      );
+    });
+
+    test('prefers deb on linux', () {
+      final service = _service(200, {}, _info('0.1.1'));
+      expect(
+        service.pickAsset(release, platform: 'linux')!.name,
+        'gometer-linux-amd64.deb',
+      );
+    });
+
+    test('prefers dmg on macos', () {
+      final service = _service(200, {}, _info('0.1.1'));
+      expect(
+        service.pickAsset(release, platform: 'macos')!.name,
+        'gometer-macos-amd64.dmg',
       );
     });
   });

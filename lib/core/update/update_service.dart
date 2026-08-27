@@ -44,34 +44,38 @@ class UpdateService {
     return path;
   }
 
-  ReleaseAsset? pickAsset(ReleaseInfo release) {
+  ReleaseAsset? pickAsset(
+    ReleaseInfo release, {
+    String? platform,
+    String? arch,
+  }) {
     final assets = release.assets;
-    final platform = currentPlatform;
-    final arch = currentArch;
+    final resolvedPlatform = platform ?? currentPlatform;
+    final resolvedArch = arch ?? currentArch;
 
-    if (platform == 'windows') {
+    if (resolvedPlatform == 'windows') {
       return _firstMatch(assets, [
-        'windows-$arch-setup.exe',
-        'windows-$arch.exe',
-        'windows-$arch.zip',
-        'windows-$arch',
+        'windows-$resolvedArch-setup.exe',
+        'windows-$resolvedArch.exe',
+        'windows-$resolvedArch.zip',
+        'windows-$resolvedArch',
       ]);
     }
-    if (platform == 'linux') {
+    if (resolvedPlatform == 'linux') {
       return _firstMatch(assets, [
-        'linux-$arch.deb',
-        'linux-$arch.tar.gz',
-        'linux-$arch.rpm',
-        'linux-$arch',
+        'linux-$resolvedArch.deb',
+        'linux-$resolvedArch.tar.gz',
+        'linux-$resolvedArch.rpm',
+        'linux-$resolvedArch',
       ]);
     }
-    if (platform == 'macos') {
+    if (resolvedPlatform == 'macos') {
       return _firstMatch(assets, [
-        'macos-$arch.dmg',
-        'macos-$arch',
+        'macos-$resolvedArch.dmg',
+        'macos-$resolvedArch',
       ]);
     }
-    if (platform == 'android') {
+    if (resolvedPlatform == 'android') {
       final abi = androidAbiName;
       return _firstMatch(assets, [
         'android-$abi.apk',

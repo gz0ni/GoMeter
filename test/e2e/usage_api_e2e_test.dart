@@ -7,14 +7,13 @@ import 'package:gometer/features/usage/services/usage_api_service.dart';
 
 // End-to-end check against the real OpenCode Go API. Skips when no key is
 // available (e.g. on CI or a machine without a local auth.json).
-void main() {
+void main() async {
+  final key = Platform.environment['GOMETER_API_KEY'] ??
+      await importOpencodeAuth();
+
   test(
     'fetches real usage windows with the local key',
     () async {
-      final key = Platform.environment['GOMETER_API_KEY'] ??
-          await importOpencodeAuth();
-      expect(key, isNotNull, reason: 'No key found in env or local auth.json');
-
       final service = UsageApiService(Dio());
       final limits = await service.fetch(key!);
 
@@ -27,5 +26,6 @@ void main() {
       }
     },
     timeout: const Timeout(Duration(minutes: 1)),
+    skip: key == null ? 'No key found in env or local auth.json' : false,
   );
 }
