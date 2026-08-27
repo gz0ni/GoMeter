@@ -281,6 +281,7 @@ Future<int> _ensureMacosDependencies() async {
 Future<int> _ensureLinuxDependencies(String arch) async {
   final pkgGroups = <List<String>>[
     ['ninja-build', 'libgtk-3-dev'],
+    ['libayatana-appindicator3-dev'],
   ];
 
   pkgGroups.add(['rpm', 'patchelf']);
