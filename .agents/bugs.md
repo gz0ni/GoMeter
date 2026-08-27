@@ -15,6 +15,15 @@ Known bugs found in this project and how they were fixed, so they do not reappea
 
 ---
 
+### Tray icon invisible + no context menu on right-click, launcher icons still stub (2026-08-27) — fixed
+
+- Symptom: no tray icon at all (empty slot, tooltip works); right-click on the tray shows nothing; taskbar/launcher icons still the old purple stub; repeated launches start duplicate instances.
+- Root causes: (1) `TrayController._resolveIconPath` returned CWD-relative paths; launches with a different CWD (Start menu, autostart Run key → `%SystemRoot%\System32`) broke `LoadImage`, so `Shell_NotifyIcon` added a blank slot. (2) tray_manager on Windows only fires `onTrayIconRightMouseDown` — the context menu must be popped manually via `popUpContextMenu()`. (3) `flutter_launcher_icons` still pointed at the deprecated `assets/images/icon.png` stub (old purple "speed" logo) for all platforms. (4) No single-instance guard in `windows/runner/main.cpp`, so every launch spawned a new process + tray icon.
+- Fix: `resolveTrayIconPath()` resolves absolute paths against the exe dir (`data/flutter_assets`) with cwd fallbacks (unit-tested); `onTrayIconRightMouseDown` → `popUpContextMenu`; `flutter_launcher_icons` source → `assets/images/png/icon-1024.png` + `remove_alpha_ios: true`; deleted `scripts/generate_icon.dart`/`assets/images/icon.png`, added `scripts/generate_ico.dart` producing multi-frame BMP `.ico` for both `windows/runner/resources/app_icon.ico` and `assets/images/ico/gometer.ico`; named mutex `GoMeterSingleInstance` in `main.cpp` activates the existing window and exits.
+- How to prevent recurrence: never resolve an asset to a relative path for native plugins on Windows; keep a single source of truth for brand art (`assets/images/png/icon-1024.png`); when re-generating icons run `dart run flutter_launcher_icons` AND `dart run scripts/generate_ico.dart`.
+
+---
+
 ### UpdateService.pickAsset picked wrong platform in CI (2026-08-27) — fixed
 
 - Symptom: `test/update_service_test.dart` failed on ubuntu runner: expected `gometer-windows-amd64-setup.exe`, got `gometer-linux-amd64.deb`. Locally (Windows) it passed.

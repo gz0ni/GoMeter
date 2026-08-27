@@ -44,10 +44,9 @@ flutter build windows
 
 ## Packaging
 
-Generate or regenerate the source icon and platform launcher icons:
+Generate or regenerate platform launcher icons from the brand logo (`assets/images/png/icon-1024.png`):
 
 ```bash
-dart run scripts/generate_icon.dart
 dart run flutter_launcher_icons
 ```
 

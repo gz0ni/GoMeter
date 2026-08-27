@@ -45,7 +45,7 @@
 
 ### Tray (`lib/core/tray/`)
 
-- `tray_controller.dart` — singleton that hides the window, sets the tray icon (Windows `.ico`, others `icon-64.png`, resolved from `data/flutter_assets` or repo root), and provides a menu: «Открыть GoMeter» (show/restore/focus) and «Выход». Used only for `--quiet` start (tray_manager + window_manager).
+- `tray_controller.dart` — singleton that hides the window, sets the tray icon and provides a menu: «Открыть GoMeter» (show/restore/focus) and «Выход». Icon path is resolved by `resolveTrayIconPath` against the exe dir (`data/flutter_assets`), with cwd fallbacks for dev runs (Windows `.ico`, others `icon-64.png`). Right-click pops the context menu via `onTrayIconRightMouseDown` → `popUpContextMenu`. Used only for `--quiet` start (tray_manager + window_manager).
 
 ### Update (`lib/core/update/`)
 
@@ -104,7 +104,7 @@ Shared MD3 components used across screens:
 
 - `UsageApiService` and `opencode_auth.dart` are verified end to end on Windows (`test/e2e/usage_api_e2e_test.dart`, real windows fetched). `parseAuthToken()` supports the nested per-provider `auth.json` format (`opencode-go.key` preferred, legacy flat fields as fallback).
 - `opencode_auth.dart` discovery on Linux/macOS is unit-tested for path candidates but not manually verified on those OSes.
-- Quiet start tray behaviour is compiled and unit-covered (paths resolved from `data/flutter_assets`), but running the actual tray across platforms is not yet manually verified.
+- Quiet start tray behaviour is compiled and unit-covered (`resolveTrayIconPath` resolved from the exe dir with cwd fallbacks), but running the actual tray across platforms is not yet manually verified. On Windows the tray icon path must be absolute (relative paths break when the CWD is `System32`, e.g. Start-menu/autostart launches).
 - Update release asset names must follow the convention `GoMeter-<version>-<platform>-<arch>.<ext>` for `update_service.dart` to pick the correct file.
 - Local notifications are implemented via `flutter_local_notifications` (Windows/Linux/macOS/Android/iOS), but only verified on Windows so far; Linux DBus delivery and packaged-proof toasts on Windows (AUMID requires a Start Menu shortcut) still need manual checks.
 - Background checks run while the app process is alive (desktop tray/quiet start keeps it alive). Guaranteed background delivery on iOS/Android needs BGTask/WorkManager and is out of scope.
