@@ -106,69 +106,25 @@ class _DesktopRail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final selectedIndex =
+        destinations.indexWhere((d) => d.path == location);
+    final selected = selectedIndex >= 0 ? selectedIndex : 0;
 
-    return Container(
-      width: 240,
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerHigh,
-        border: Border(right: BorderSide(color: scheme.outlineVariant)),
-      ),
-      padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(14, 6, 14, 20),
-            child: BrandLogo(iconSize: 36),
+    return NavigationDrawer(
+      selectedIndex: selected,
+      onDestinationSelected: (index) => context.go(destinations[index].path),
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(28, 16, 28, 24),
+          child: BrandLogo(iconSize: 36),
+        ),
+        for (final item in destinations)
+          NavigationDrawerDestination(
+            icon: Icon(item.icon),
+            selectedIcon: Icon(item.selectedIcon),
+            label: Text(item.label),
           ),
-          for (final item in destinations) _railItem(context, item),
-        ],
-      ),
-    );
-  }
-
-  Widget _railItem(BuildContext context, _NavItem item) {
-    final scheme = Theme.of(context).colorScheme;
-    final selected = item.path == location;
-
-    return InkWell(
-      onTap: () => context.go(item.path),
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        height: 48,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        decoration: BoxDecoration(
-          color: selected ? scheme.secondaryContainer : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              selected ? item.selectedIcon : item.icon,
-              size: 22,
-              color: selected
-                  ? scheme.onSecondaryContainer
-                  : scheme.onSurfaceVariant,
-            ),
-            const SizedBox(width: 14),
-            Flexible(
-              child: Text(
-                item.label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: selected
-                      ? scheme.onSecondaryContainer
-                      : scheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      ],
     );
   }
 }
@@ -184,57 +140,20 @@ class _BottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final selectedIndex =
+        destinations.indexWhere((d) => d.path == selectedPath);
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: destinations.map((item) {
-            final selected = selectedPath == item.path;
-            return InkWell(
-              onTap: () => context.go(item.path),
-              borderRadius: BorderRadius.circular(22),
-              child: Container(
-                constraints: const BoxConstraints(minWidth: 96),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color:
-                      selected ? scheme.secondaryContainer : Colors.transparent,
-                  borderRadius: BorderRadius.circular(22),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      selected ? item.selectedIcon : item.icon,
-                      size: 26,
-                      color: selected
-                          ? scheme.onSecondaryContainer
-                          : scheme.onSurfaceVariant,
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      item.label,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: selected
-                            ? scheme.onSecondaryContainer
-                            : scheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ),
+    return NavigationBar(
+      selectedIndex: selectedIndex,
+      onDestinationSelected: (index) => context.go(destinations[index].path),
+      destinations: [
+        for (final item in destinations)
+          NavigationDestination(
+            icon: Icon(item.icon),
+            selectedIcon: Icon(item.selectedIcon),
+            label: item.label,
+          ),
+      ],
     );
   }
 }

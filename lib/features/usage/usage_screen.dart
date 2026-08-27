@@ -89,8 +89,7 @@ class UsageScreen extends ConsumerWidget {
                       Text(
                         'Обновлено недавно · проверка каждые ${settings.checkIntervalMinutes} мин',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 13,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),

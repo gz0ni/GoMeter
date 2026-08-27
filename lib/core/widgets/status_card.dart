@@ -19,8 +19,8 @@ class StatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final extra = context.extraColors;
-    final accent = scheme.levelColor(level, extra);
+    final textTheme = Theme.of(context).textTheme;
+    final accent = scheme.levelColor(level);
 
     return Container(
       width: double.infinity,
@@ -55,9 +55,7 @@ class StatusCard extends StatelessWidget {
               children: [
                 Text(
                   labelFor(level),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                  style: textTheme.titleMedium?.copyWith(
                     color: scheme.onSurface,
                   ),
                 ),
@@ -65,15 +63,13 @@ class StatusCard extends StatelessWidget {
                 Text.rich(
                   TextSpan(
                     text: '$windowName · использовано $percent% · окно в течение ',
-                    style: TextStyle(
-                      fontSize: 13,
-                      height: 1.4,
+                    style: textTheme.bodyMedium?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
                     children: [
                       TextSpan(
                         text: formatDuration(resetInSeconds),
-                        style: TextStyle(
+                        style: textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w500,
                           color: scheme.onSurface,
                         ),

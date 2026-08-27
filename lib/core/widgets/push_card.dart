@@ -11,12 +11,13 @@ class PushCardTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(12),
       ),
       padding: const EdgeInsets.fromLTRB(18, 12, 6, 14),
       child: Column(
@@ -33,16 +34,16 @@ class PushCardTile extends StatelessWidget {
               Expanded(
                 child: Text(
                   'GoMeter',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                  style: textTheme.titleSmall?.copyWith(
                     color: scheme.onSurface,
                   ),
                 ),
               ),
               Text(
                 'сейчас',
-                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+                style: textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
               ),
               IconButton(
                 onPressed: onDismiss,
@@ -60,18 +61,14 @@ class PushCardTile extends StatelessWidget {
               children: [
                 Text(
                   card.title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                  style: textTheme.titleSmall?.copyWith(
                     color: scheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   card.text,
-                  style: TextStyle(
-                    fontSize: 13,
-                    height: 1.45,
+                  style: textTheme.bodyMedium?.copyWith(
                     color: scheme.onSurfaceVariant,
                   ),
                 ),

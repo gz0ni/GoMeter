@@ -61,14 +61,10 @@ class AboutScreen extends ConsumerWidget {
                 image: 'assets/images/png/icon-512.png',
               ),
               const SizedBox(height: 10),
-              const Text(
+              Text(
                 'GoMeter',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.01,
-                ),
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 4),
               FutureBuilder<PackageInfo>(
@@ -79,10 +75,9 @@ class AboutScreen extends ConsumerWidget {
                   return Text(
                     'Версия $version',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: scheme.onSurfaceVariant,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
                   );
                 },
               ),
@@ -92,7 +87,7 @@ class AboutScreen extends ConsumerWidget {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: scheme.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(28),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
@@ -110,19 +105,18 @@ class AboutScreen extends ConsumerWidget {
                           children: [
                             Text(
                               'Доступно обновление',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                                color: scheme.onSurface,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(color: scheme.onSurface),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               '${update.info!.tagName} · улучшенная работа с лимитами',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: scheme.onSurfaceVariant,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(color: scheme.onSurfaceVariant),
                             ),
                           ],
                         ),
@@ -130,11 +124,6 @@ class AboutScreen extends ConsumerWidget {
                       const SizedBox(width: 12),
                       FilledButton(
                         onPressed: () => _startUpdate(context, ref),
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size(0, 38),
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 18),
-                        ),
                         child: const Text('Обновить'),
                       ),
                     ],
@@ -161,19 +150,17 @@ class AboutScreen extends ConsumerWidget {
               Text(
                 isMobile ? 'Windows · Linux · macOS · Android' : 'Windows · Linux · macOS',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: scheme.onSurfaceVariant,
-                ),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
               ),
               const SizedBox(height: 4),
               Text(
                 '© 2026 GoMeter. Данные об использовании не покидают устройство.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: scheme.onSurfaceVariant,
-                ),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
               ),
             ],
           ),

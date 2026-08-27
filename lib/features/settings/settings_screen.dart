@@ -72,7 +72,9 @@ class SettingsScreen extends ConsumerWidget {
           final version = snapshot.hasData ? snapshot.data!.version : '...';
           return Text(
             'Текущая версия $version',
-            style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: scheme.onSurfaceVariant,
+            ),
           );
         },
       );
@@ -93,11 +95,9 @@ class SettingsScreen extends ConsumerWidget {
               Text(
                 'Настройки',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w500,
-                  color: scheme.onSurface,
-                ),
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: scheme.onSurface,
+                    ),
               ),
               const SizedBox(height: 8),
               SettingsSection(

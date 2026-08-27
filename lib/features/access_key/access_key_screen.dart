@@ -98,9 +98,7 @@ class _AccessKeyScreenState extends ConsumerState<AccessKeyScreen> {
                 const SizedBox(height: 12),
                 Text(
                   'Подключимся к API OpenCode Go, чтобы показывать лимиты в реальном времени.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    height: 1.5,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: scheme.onSurfaceVariant,
                   ),
                 ),
@@ -125,9 +123,6 @@ class _AccessKeyScreenState extends ConsumerState<AccessKeyScreen> {
                 FilledButton.icon(
                   onPressed: _save,
                   icon: const Icon(Icons.check),
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size.fromHeight(50),
-                  ),
                   label: const Text('Сохранить'),
                 ),
                 if (!Platform.isAndroid && !Platform.isIOS) ...[
@@ -135,9 +130,6 @@ class _AccessKeyScreenState extends ConsumerState<AccessKeyScreen> {
                   OutlinedButton.icon(
                     onPressed: _import,
                     icon: const Icon(Icons.file_download),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(50),
-                    ),
                     label: const Text('Импортировать из opencode CLI'),
                   ),
                 ],

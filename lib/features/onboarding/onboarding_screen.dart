@@ -81,9 +81,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 FilledButton.icon(
                   onPressed: _save,
                   icon: const Icon(Icons.arrow_forward),
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size.fromHeight(50),
-                  ),
                   label: const Text('Сохранить и начать'),
                 ),
                 if (!Platform.isAndroid && !Platform.isIOS) ...[
@@ -91,9 +88,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   OutlinedButton.icon(
                     onPressed: _importFromCli,
                     icon: const Icon(Icons.file_download),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(50),
-                    ),
                     label: const Text('Импортировать из opencode CLI'),
                   ),
                 ],
@@ -115,21 +109,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           image: 'assets/images/png/icon-512.png',
         ),
         const SizedBox(height: 14),
-        const Text(
+        Text(
           'GoMeter',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.01,
-          ),
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.headlineMedium,
         ),
         const SizedBox(height: 8),
         Text(
           'Трекер лимитов подписки OpenCode Go. Укажи ключ — и поехали.',
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 14,
-            height: 1.5,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: scheme.onSurfaceVariant,
           ),
         ),
@@ -141,9 +130,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Ключ доступа',
-          style: TextStyle(fontSize: 19, fontWeight: FontWeight.w500),
+          style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 10),
         FilledTextField(

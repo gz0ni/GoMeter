@@ -9,15 +9,14 @@ class SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Row(
       children: [
         Expanded(
           child: Text(
             title,
-            style: TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.w500,
+            style: textTheme.titleLarge?.copyWith(
               color: scheme.onSurface,
             ),
           ),

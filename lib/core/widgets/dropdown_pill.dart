@@ -15,6 +15,7 @@ class DropdownPill<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     final label = items.firstWhere((i) => i.value == value).label;
 
     return PopupMenuButton<T>(
@@ -34,11 +35,11 @@ class DropdownPill<T> extends StatelessWidget {
       ],
       onSelected: onChanged,
       child: Container(
-        height: 50,
+        height: 48,
         padding: const EdgeInsets.only(left: 20, right: 12),
         decoration: BoxDecoration(
           color: scheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(9999),
+          borderRadius: BorderRadius.circular(24),
           border: Border.all(color: scheme.outlineVariant),
         ),
         child: Row(
@@ -46,8 +47,7 @@ class DropdownPill<T> extends StatelessWidget {
           children: [
             Text(
               label,
-              style: TextStyle(
-                fontSize: 15,
+              style: textTheme.labelLarge?.copyWith(
                 color: scheme.onSurface,
               ),
             ),

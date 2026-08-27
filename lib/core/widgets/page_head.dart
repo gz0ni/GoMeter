@@ -17,6 +17,7 @@ class PageHead extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Row(
       children: [
@@ -32,9 +33,7 @@ class PageHead extends StatelessWidget {
             title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w500,
+            style: textTheme.titleLarge?.copyWith(
               color: scheme.onSurface,
             ),
           ),

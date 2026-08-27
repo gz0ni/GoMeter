@@ -28,9 +28,6 @@ class FilterChipWidget extends StatelessWidget {
       side: BorderSide(
         color: selected ? Colors.transparent : scheme.outlineVariant,
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(9999),
-      ),
       padding: const EdgeInsets.symmetric(horizontal: 16),
     );
   }

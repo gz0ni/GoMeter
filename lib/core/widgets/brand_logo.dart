@@ -9,6 +9,7 @@ class BrandLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -23,8 +24,7 @@ class BrandLogo extends StatelessWidget {
                 'GoMeter',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 18,
+                style: textTheme.titleMedium?.copyWith(
                   color: colorScheme.onSurface,
                 ),
               ),
@@ -32,8 +32,7 @@ class BrandLogo extends StatelessWidget {
                 'Лимиты OpenCode Go',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12,
+                style: textTheme.bodySmall?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
               ),

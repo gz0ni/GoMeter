@@ -10,14 +10,14 @@ class LimitCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final extra = context.extraColors;
-    final accent = scheme.levelColor(limit.level, extra);
+    final textTheme = Theme.of(context).textTheme;
+    final accent = scheme.levelColor(limit.level);
 
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(12),
       ),
       padding: const EdgeInsets.fromLTRB(12, 22, 12, 16),
       child: Column(
@@ -28,26 +28,19 @@ class LimitCard extends StatelessWidget {
             color: scheme.onSurface,
           ),
           const SizedBox(height: 6),
-          Text(
-            limit.name,
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-          ),
+          Text(limit.name, style: textTheme.titleMedium),
           const SizedBox(height: 4),
           Text.rich(
             TextSpan(
               text: '${limit.percent}',
-              style: TextStyle(
-                fontSize: 27,
+              style: textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w600,
-                letterSpacing: -0.01,
                 color: scheme.onSurface,
               ),
               children: [
                 TextSpan(
                   text: '%',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                  style: textTheme.labelLarge?.copyWith(
                     color: scheme.onSurfaceVariant,
                   ),
                 ),
@@ -57,20 +50,16 @@ class LimitCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             'осталось ${limit.remainingPercent}%',
-            style: TextStyle(
-              fontSize: 12,
+            style: textTheme.bodySmall?.copyWith(
               color: scheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(9999),
-            child: LinearProgressIndicator(
-              value: limit.percent / 100,
-              minHeight: 6,
-              backgroundColor: scheme.surfaceContainerHighest,
-              valueColor: AlwaysStoppedAnimation<Color>(accent),
-            ),
+          LinearProgressIndicator(
+            value: limit.percent / 100,
+            minHeight: 4,
+            backgroundColor: scheme.surfaceContainerHighest,
+            valueColor: AlwaysStoppedAnimation<Color>(accent),
           ),
         ],
       ),

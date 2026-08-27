@@ -22,6 +22,7 @@ class SettingRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     final content = Row(
       children: [
@@ -31,16 +32,14 @@ class SettingRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 16,
+                style: textTheme.bodyLarge?.copyWith(
                   color: danger ? scheme.error : scheme.onSurface,
                 ),
               ),
               if (sub != null)
                 Text(
                   sub!,
-                  style: TextStyle(
-                    fontSize: 13,
+                  style: textTheme.bodyMedium?.copyWith(
                     color: scheme.onSurfaceVariant,
                   ),
                 )
@@ -107,6 +106,7 @@ class SettingsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Container(
       constraints: const BoxConstraints(minWidth: double.infinity),
@@ -121,9 +121,7 @@ class SettingsSection extends StatelessWidget {
         children: [
           Text(
             title,
-            style: TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.w500,
+            style: textTheme.titleLarge?.copyWith(
               color: scheme.onSurface,
             ),
           ),
