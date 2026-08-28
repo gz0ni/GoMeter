@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:gometer/core/foreground/gometer_task_handler.dart';
 
@@ -49,7 +50,10 @@ class ForegroundService {
       serviceTypes: [ForegroundServiceTypes.dataSync],
       notificationTitle: 'GoMeter',
       notificationText: 'Отслеживание лимитов',
-      notificationIcon: null,
+      notificationIcon: const NotificationIcon(
+        metaDataName: 'dev.gometer.gometer.notificationIcon',
+        backgroundColor: Color(0xFF2196F3),
+      ),
       callback: startCallback,
     );
   }

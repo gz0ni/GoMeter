@@ -3,18 +3,23 @@ import 'dart:math' as math;
 
 import 'package:image/image.dart' as img;
 
-const _source = 'assets/images/png/icon-1024.png';
+const _source2048 = 'assets/images/png/icon-2048.png';
+const _source1024 = 'assets/images/png/icon-1024.png';
 const _foreground = 'assets/images/png/adaptive-foreground.png';
 const _background = 'assets/images/png/adaptive-background.png';
 
-/// The adaptive icon safe zone is 66/108 (61.1%) of the canvas. Keep the ring
-/// (which occupies 78% of the source canvas) inside it with a small margin.
-const _safeDiameter = 1024.0 * 0.56;
+const _safeDiameter = 1024.0 * 0.66;
+
+String _resolveSource() {
+  if (File(_source2048).existsSync()) return _source2048;
+  return _source1024;
+}
 
 void main() {
-  final source = img.decodeImage(File(_source).readAsBytesSync());
+  final srcPath = _resolveSource();
+  final source = img.decodeImage(File(srcPath).readAsBytesSync());
   if (source == null) {
-    stderr.writeln('Failed to read $_source');
+    stderr.writeln('Failed to read $srcPath');
     exit(1);
   }
 

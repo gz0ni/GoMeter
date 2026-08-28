@@ -106,6 +106,21 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Setup Node for icon generation
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate icons from SVG (sharp)
+        shell: bash
+        run: |
+          set -e
+          npm install sharp --no-save
+          node scripts/svg_to_png.mjs || echo "SVG rasterize skipped, using fallback PNG"
+          dart run scripts/generate_launcher_assets.dart
+          dart run flutter_launcher_icons || echo "flutter_launcher_icons failed but continuing"
+          dart run scripts/generate_ico.dart
+
       - name: Setup Xcode (macOS)
         if: startsWith(matrix.platform, 'macos')
         run: |

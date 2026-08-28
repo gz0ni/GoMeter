@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:gometer/core/notifications/notification_service.dart';
 import 'package:gometer/core/tray/tray_controller.dart';
@@ -82,6 +83,8 @@ class FlutterLocalNotificationsService implements NotificationService {
         channelDescription: 'Уведомления о пересечении порогов лимитов',
         importance: Importance.high,
         priority: Priority.high,
+        icon: 'ic_stat_gometer',
+        color: Color(0xFF2196F3),
       ),
       iOS: DarwinNotificationDetails(),
       macOS: DarwinNotificationDetails(),

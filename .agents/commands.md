@@ -41,14 +41,19 @@ flutter build windows
 
 ## Packaging
 
-Generate or regenerate platform launcher icons from the brand logo (`assets/images/png/icon-1024.png`):
+Generate or regenerate platform launcher icons from the brand logo (`assets/images/svg/logo.svg` → `assets/images/png/icon-1024.png` / `icon-2048.png`):
 
 ```bash
+# High-quality supersample from SVG (requires sharp, used in CI):
+npm install sharp --no-save
+node scripts/svg_to_png.mjs   # SVG → icon-2048.png + high-quality icon-1024.png
+
+dart run scripts/generate_launcher_assets.dart
 dart run flutter_launcher_icons
 dart run scripts/generate_ico.dart
 ```
 
-`generate_ico.dart` must run **after** `flutter_launcher_icons` — the latter rewrites `windows/runner/resources/app_icon.ico`, and the ico generator writes the final multi-frame icon plus the tray-optimized `assets/images/ico/gometer.ico`. Adaptive Android icons use `assets/images/png/adaptive-foreground.png` (ring inside the 66/108 safe zone) and `adaptive-background.png` (blue→lavender gradient); regenerate them with `dart run scripts/generate_launcher_assets.dart` before `flutter_launcher_icons`.
+`generate_ico.dart` must run **after** `flutter_launcher_icons` — the latter rewrites `windows/runner/resources/app_icon.ico`, and the ico generator writes the final multi-frame PNG-compressed ICO plus the tray-optimized `assets/images/ico/gometer.ico` (10 frames `[16,20,24,32,40,48,64,96,128,256]` + 5 tray frames). Adaptive Android icons use `assets/images/png/adaptive-foreground.png` (ring 66% / 676px inside the 66/108 safe zone) and `adaptive-background.png` (blue→lavender gradient); regenerate them with `dart run scripts/generate_launcher_assets.dart` before `flutter_launcher_icons`. `icon-2048.png` is preferred by `generate_launcher_assets.dart` / `generate_ico.dart` when present, otherwise fallback to `icon-1024.png`.
 
 Package for the current host platform:
 

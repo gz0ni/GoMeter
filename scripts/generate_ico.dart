@@ -4,48 +4,20 @@ import 'dart:typed_data';
 
 import 'package:image/image.dart' as img;
 
-const _source = 'assets/images/png/icon-1024.png';
-const _appFrameSizes = [16, 24, 32, 48, 64, 128, 256];
+const _source2048 = 'assets/images/png/icon-2048.png';
+const _source1024 = 'assets/images/png/icon-1024.png';
+const _appFrameSizes = [16, 20, 24, 32, 40, 48, 64, 96, 128, 256];
 const _trayFrameSizes = [16, 20, 24, 32, 48];
 const _appIcoTargets = ['windows/runner/resources/app_icon.ico'];
 const _trayIcoTargets = ['assets/images/ico/gometer.ico'];
 
-Uint8List _encodeBmpFrame(img.Image image) {
-  final w = image.width;
-  final h = image.height;
-  final andRowBytes = ((w + 31) ~/ 32) * 4;
-  final xorSize = w * h * 4;
-  final dibSize = 40 + xorSize + andRowBytes * h;
-  final dib = Uint8List(dibSize);
-  final out = ByteData.view(dib.buffer);
-
-  out.setUint32(0, 40, Endian.little);
-  out.setInt32(4, w, Endian.little);
-  out.setInt32(8, h * 2, Endian.little);
-  out.setUint16(12, 1, Endian.little);
-  out.setUint16(14, 32, Endian.little);
-
-  var offset = 40;
-  for (var y = h - 1; y >= 0; y--) {
-    for (var x = 0; x < w; x++) {
-      final p = image.getPixel(x, y);
-      dib[offset++] = p.b.toInt();
-      dib[offset++] = p.g.toInt();
-      dib[offset++] = p.r.toInt();
-      dib[offset++] = p.a.toInt();
-    }
-  }
-  for (var y = h - 1; y >= 0; y--) {
-    for (var x = 0; x < w; x++) {
-      final p = image.getPixel(x, y);
-      if (p.a.toInt() < 128) {
-        dib[offset + x ~/ 8] |= 0x80 >> (x % 8);
-      }
-    }
-    offset += andRowBytes;
-  }
-  return dib;
+String _resolveSource() {
+  if (File(_source2048).existsSync()) return _source2048;
+  return _source1024;
 }
+
+Uint8List _encodePngFrame(img.Image image) =>
+    Uint8List.fromList(img.encodePng(image));
 
 Uint8List _encodeIco(List<img.Image> frames) {
   final count = frames.length;
@@ -55,15 +27,15 @@ Uint8List _encodeIco(List<img.Image> frames) {
 
   for (final frame in frames) {
     final size = frame.width;
-    final blob = _encodeBmpFrame(frame);
+    final blob = _encodePngFrame(frame);
     headers
       ..add(size >= 256 ? 0 : size)
       ..add(size >= 256 ? 0 : size)
       ..add(0)
       ..add(0)
-      ..add(1)
       ..add(0)
-      ..add(32)
+      ..add(0)
+      ..add(0)
       ..add(0)
       ..add(blob.length & 0xff)
       ..add((blob.length >> 8) & 0xff)
@@ -141,9 +113,10 @@ void _saveIco(List<img.Image> frames, List<String> targets) {
 }
 
 void main() {
-  final source = img.decodeImage(File(_source).readAsBytesSync());
+  final srcPath = _resolveSource();
+  final source = img.decodeImage(File(srcPath).readAsBytesSync());
   if (source == null) {
-    stderr.writeln('Failed to read $_source');
+    stderr.writeln('Failed to read $srcPath');
     exit(1);
   }
 

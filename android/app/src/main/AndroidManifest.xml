@@ -45,6 +45,9 @@
             android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
             android:foregroundServiceType="dataSync"
             android:exported="false" />
+        <meta-data
+            android:name="dev.gometer.gometer.notificationIcon"
+            android:resource="@drawable/ic_stat_gometer" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

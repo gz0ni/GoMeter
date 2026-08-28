@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 @pragma('vm:entry-point')
@@ -131,6 +132,8 @@ class GoMeterTaskHandler extends TaskHandler {
         channelDescription: 'Уведомления о пересечении порогов лимитов',
         importance: Importance.high,
         priority: Priority.high,
+        icon: 'ic_stat_gometer',
+        color: Color(0xFF2196F3),
       ),
     );
     final title = 'Лимит $threshold% · ${limit.name}';
