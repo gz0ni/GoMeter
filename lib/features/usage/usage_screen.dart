@@ -136,14 +136,16 @@ class UsageScreen extends ConsumerWidget {
 
   Widget _buildCards(List<UsageLimit> limits, bool isDesktop) {
     if (!isDesktop) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (final (i, limit) in limits.indexed) ...[
-            if (i > 0) const SizedBox(width: 12),
-            Expanded(child: LimitCard(limit: limit)),
+      return IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final (i, limit) in limits.indexed) ...[
+              if (i > 0) const SizedBox(width: 12),
+              Expanded(child: LimitCard(limit: limit)),
+            ],
           ],
-        ],
+        ),
       );
     }
 

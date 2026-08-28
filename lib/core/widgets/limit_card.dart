@@ -18,6 +18,7 @@ class LimitCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: scheme.outlineVariant),
       ),
       padding: const EdgeInsets.fromLTRB(12, 22, 12, 16),
       child: Column(
@@ -48,10 +49,13 @@ class LimitCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            'осталось ${limit.remainingPercent}%',
-            style: textTheme.bodySmall?.copyWith(
-              color: scheme.onSurfaceVariant,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              'осталось ${limit.remainingPercent}%',
+              style: textTheme.bodySmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
             ),
           ),
           const SizedBox(height: 10),

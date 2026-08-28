@@ -53,6 +53,24 @@ Task checklist. The agent maintains this file: creates items, marks them done, k
 - [x] Update `.agents/architecture.md` when API/auth layers are finalized — documented autostart/tray layers, refreshed known gaps and roadmap.
 - [x] Fix tray/icon issues (v0.2.1 follow-up): brand logo everywhere (`flutter_launcher_icons` source → `assets/images/png/icon-1024.png`, removed `scripts/generate_icon.dart` stub + `assets/images/icon.png`, new `scripts/generate_ico.dart` builds multi-frame BMP `.ico`), absolute tray icon path (`resolveTrayIconPath` from exe dir + cwd fallbacks, unit-tested), tray context menu on right-click (`onTrayIconRightMouseDown` → `popUpContextMenu`), single-instance guard in `windows/runner/main.cpp` (named mutex + activate existing window).
 
+- [x] **v0.2.3 release**: M3 audit + auto accent + rpm requires + mockup sync. Commits: `feat(theme)`, `feat(ui): material 3 audit`, `fix(linux): rpm requires`, `docs: sync mockup`, `release: v0.2.3` (0.2.3+5). CI build.yaml run 22 ✅ (Test/linux/android/macos/windows/Release) → https://github.com/gz0ni/GoMeter/releases/tag/v0.2.3
+
+## Icon / Tray / Background (v0.2.3 feedback)
+
+- [ ] Tray icon too small: regenerate tray-optimized `gometer.ico` (tighter ring, heavier stroke) — Windows tray scales to OS size, current logo ring is thin at 16-24 px and reads tiny.
+- [ ] Windows window/taskbar icon still a placeholder: repo `windows/runner/resources/app_icon.ico` is byte-identical to `assets/images/ico/gometer.ico` (MD5 match) — likely stale installed build / icon cache, not repo asset; verify via CI build (v* tag, user request only) + reinstall, check titlebar/Alt-Tab/taskbar at 150% DPI.
+- [ ] Android launcher icon too big: adaptive `foreground`/`background` both = `icon-1024.png` (full-bleed ring, clipped by mask); split into proper foreground in 66/108 safe zone + background color/gradient, regenerate via `flutter_launcher_icons`.
+- [ ] Android notification without icon: `AndroidInitializationSettings` uses `@mipmap/ic_launcher` (colored, not valid as small icon on Android) → add monochrome vector `drawable/ic_stat_gometer` (white ring+spark, transparent bg) and switch init to it; verify on device (incl. Android 13+ small-icon rules).
+- [ ] App not working in background on Android: Dart timers suspend/kill when app is backgrounded → add foreground service (`flutter_foreground_task`, user-approved) that keeps polling per `checkIntervalMinutes` (default 5) and posts limit notifications; persistent service notification; verify on device.
+- [ ] Tray tooltip with remaining limits: update `trayManager.setToolTip` (Windows/Linux; macOS unsupported by tray_manager) on usage changes — e.g. "R5h: X осталось · W: Y · M: Z"; mirror limits into tray context menu where tooltip is unsupported.
+
+## Platform fixes (v0.2.3 feedback, round 2)
+
+- [ ] macOS app won't open (black window): `macos/Runner/Release.entitlements` lacks `com.apple.security.network.client` (sandbox blocks API calls), CI ships arm64-only DMG, and a startup crash in the tray/notifications await chain before `runApp` leaves a black window → add network.client entitlement, make `attachToTray` best-effort, verify arch + launch from Terminal to capture crash log.
+- [ ] Android in-place update fails ("conflicts with an existing package"): release signing falls back to debug key when the CI `KEYSTORE` secret is missing/rotated (`build.gradle.kts` signingConfigs), so the new APK signature mismatches the installed one → verify `apksigner verify --print-certs` on v0.2.2 vs v0.2.3 APKs, confirm secret continuity; decide reinstall vs re-signing.
+- [ ] Windows toast has no app icon: `WindowsInitializationSettings(iconPath)` exists in flutter_local_notifications_windows 3.1.1 but is not passed in `FlutterLocalNotificationsService.init` → resolve `gometer.ico` absolute path (reuse `resolveTrayIconPath` resolution) and pass it; verify toast shows the logo.
+- [x] Mobile limit tiles misaligned: "осталось 100%" wraps in the first column → taller card, ragged progress bars, card border barely visible on dark theme → single-line label (FittedBox / no-wrap), equal card heights (`CrossAxisAlignment.stretch` + `IntrinsicHeight`), clearer card outline (`outlineVariant` border). Done 2026-08-28: `flutter analyze` clean, `flutter test` 84 green (2 new regression tests: narrow-column no-wrap, equal card heights).
+
 ## In Progress
 
 - [~] None.

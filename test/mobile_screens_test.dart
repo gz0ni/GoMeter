@@ -96,6 +96,19 @@ void main() {
       expect(find.text('30 дней'), findsOneWidget);
     });
 
+    testWidgets('regression: limit cards are equal height and bars align',
+        (tester) async {
+      await tester.pumpWidget(await _mobileApp(child: const UsageScreen()));
+      await tester.pumpAndSettle();
+
+      final boxes = [for (final e in find.byType(LimitCard).evaluate()) e.renderObject as RenderBox];
+      expect(boxes, hasLength(3));
+      final firstHeight = boxes.first.size.height;
+      for (final box in boxes) {
+        expect(box.size.height, firstHeight);
+      }
+    });
+
     testWidgets('SettingsScreen shows sections', (tester) async {
       await tester.pumpWidget(await _mobileApp(child: const SettingsScreen()));
       await tester.pumpAndSettle();

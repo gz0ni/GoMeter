@@ -94,4 +94,36 @@ void main() {
     expect(find.textContaining('79%', findRichText: true), findsOneWidget);
     expect(find.text('осталось 21%'), findsOneWidget);
   });
+
+  testWidgets('LimitCard stays single-line and fits in a narrow column',
+      (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        Center(
+          child: SizedBox(
+            width: 150,
+            child: LimitCard(
+              limit: const UsageLimit(
+                id: 'rolling',
+                name: '5 часов',
+                window: '5 часов',
+                percent: 0,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.byType(FittedBox), findsOneWidget);
+    final remainder = tester.renderObject(
+      find.text('осталось 100%'),
+    ) as RenderBox;
+    expect(remainder.size.width, greaterThan(0));
+    expect(
+      tester.renderObject(find.byType(LimitCard)),
+      isA<RenderBox>(), // no overflow
+    );
+  });
 }
