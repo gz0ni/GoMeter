@@ -4,6 +4,22 @@ import 'package:path/path.dart' as p;
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'package:gometer/features/usage/models/usage_limit.dart';
+
+const _windowTooltipLabels = {'rolling': 'R5h', 'weekly': 'W', 'monthly': 'M'};
+
+/// Short "remaining" summary for the tray tooltip, e.g.
+/// `R5h: 69% осталось · W: 41% · M: 31%`. Falls back to the app name.
+String buildTrayTooltip(List<UsageLimit> limits) {
+  if (limits.isEmpty) return 'GoMeter';
+  final parts = <String>[];
+  for (final limit in limits) {
+    final label = _windowTooltipLabels[limit.id] ?? limit.name;
+    parts.add('$label: ${limit.remainingPercent}%');
+  }
+  return parts.join(' · ');
+}
+
 class TrayController with TrayListener, WindowListener {
   TrayController._();
 
@@ -13,25 +29,41 @@ class TrayController with TrayListener, WindowListener {
 
   Future<void> attachToTray() async {
     if (_attached) return;
-    await windowManager.ensureInitialized();
-    windowManager.addListener(this);
-    await trayManager.setIcon(resolveTrayIconPath());
-    await trayManager.setToolTip('GoMeter');
-    await trayManager.setContextMenu(
-      Menu(items: [
-        MenuItem(key: 'open', label: 'Открыть GoMeter'),
-        MenuItem.separator(),
-        MenuItem(key: 'quit', label: 'Выход'),
-      ]),
-    );
-    trayManager.addListener(this);
-    _attached = true;
+    try {
+      await windowManager.ensureInitialized();
+      windowManager.addListener(this);
+      await trayManager.setIcon(resolveTrayIconPath());
+      await trayManager.setToolTip('GoMeter');
+      await trayManager.setContextMenu(
+        Menu(items: [
+          MenuItem(key: 'open', label: 'Открыть GoMeter'),
+          MenuItem.separator(),
+          MenuItem(key: 'quit', label: 'Выход'),
+        ]),
+      );
+      trayManager.addListener(this);
+      _attached = true;
+    } catch (_) {
+      // best-effort: tray is a nice-to-have; failures must not block startup
+      // (e.g. Linux without a tray implementation, macOS sandbox quirks).
+    }
   }
 
   Future<void> showWindow() async {
     await windowManager.show();
     await windowManager.restore();
     await windowManager.focus();
+  }
+
+  bool get isAttached => _attached;
+
+  Future<void> updateTooltip(String text) async {
+    if (!_attached) return;
+    try {
+      await trayManager.setToolTip(text);
+    } catch (_) {
+      // best-effort: tooltip updates must never break the app.
+    }
   }
 
   @override

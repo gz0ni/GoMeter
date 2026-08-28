@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gometer/core/notifications/notification_history.dart';
 import 'package:gometer/core/notifications/notification_service.dart';
 import 'package:gometer/core/theme/theme_provider.dart';
+import 'package:gometer/core/tray/tray_controller.dart';
 import 'package:gometer/features/usage/logic/threshold_logic.dart';
 import 'package:gometer/features/usage/models/usage_limit.dart';
 import 'package:gometer/features/usage/providers/usage_provider.dart';
@@ -66,6 +67,9 @@ class LimitMonitor extends Notifier<LimitMonitorState> {
       }
     }
 
+    unawaited(
+      TrayController.instance.updateTooltip(buildTrayTooltip(limits)),
+    );
     state = LimitMonitorState(lastLimits: limits);
   }
 

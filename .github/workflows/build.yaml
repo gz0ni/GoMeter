@@ -66,7 +66,11 @@ jobs:
           set -e
           echo "${{ secrets.KEYSTORE }}" | sed 's/^KEYSTORE=//' | base64 --decode > android/app/keystore.jks
           if [ ! -s android/app/keystore.jks ]; then
-            echo "Keystore decode failed or empty. Check the KEYSTORE secret."
+            echo "Keystore decode failed or empty. Check the KEYSTORE secret (must be base64, optionally prefixed with KEYSTORE=)."
+            exit 1
+          fi
+          if [ -z "${{ secrets.KEY_ALIAS }}" ] || [ -z "${{ secrets.STORE_PASSWORD }}" ] || [ -z "${{ secrets.KEY_PASSWORD }}" ]; then
+            echo "Android signing secrets incomplete: KEY_ALIAS/STORE_PASSWORD/KEY_PASSWORD must be set alongside KEYSTORE."
             exit 1
           fi
           {
@@ -75,6 +79,7 @@ jobs:
             echo "storePassword=${{ secrets.STORE_PASSWORD }}"
             echo "keyPassword=${{ secrets.KEY_PASSWORD }}"
           } >> android/local.properties
+          echo "Android signing configured: keystore $(wc -c < android/app/keystore.jks) bytes, alias=${{ secrets.KEY_ALIAS }}"
 
       - name: Setup NDK
         if: startsWith(matrix.platform, 'android')

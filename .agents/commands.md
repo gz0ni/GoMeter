@@ -45,7 +45,10 @@ Generate or regenerate platform launcher icons from the brand logo (`assets/imag
 
 ```bash
 dart run flutter_launcher_icons
+dart run scripts/generate_ico.dart
 ```
+
+`generate_ico.dart` must run **after** `flutter_launcher_icons` — the latter rewrites `windows/runner/resources/app_icon.ico`, and the ico generator writes the final multi-frame icon plus the tray-optimized `assets/images/ico/gometer.ico`. Adaptive Android icons use `assets/images/png/adaptive-foreground.png` (ring inside the 66/108 safe zone) and `adaptive-background.png` (blue→lavender gradient); regenerate them with `dart run scripts/generate_launcher_assets.dart` before `flutter_launcher_icons`.
 
 Package for the current host platform:
 

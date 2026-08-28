@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gometer/core/foreground/foreground_service.dart';
 import 'package:gometer/core/theme/app_theme.dart';
 import 'package:gometer/core/theme/theme_provider.dart';
 import 'package:gometer/core/update/update_controller.dart';
@@ -29,11 +30,26 @@ class _GoMeterAppState extends ConsumerState<GoMeterApp> {
     if (settings.autoCheckUpdate) {
       await ref.read(updateControllerProvider.notifier).check();
     }
+    await ForegroundService.requestPermissionsIfNeeded();
+    await ForegroundService.sync(
+      apiKey: settings.apiKey,
+      notificationsEnabled: settings.notificationsEnabled,
+      intervalMinutes: settings.checkIntervalMinutes,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     ref.watch(limitMonitorProvider);
+    ref.listen(settingsProvider, (prev, next) {
+      final s = next.value;
+      if (s == null) return;
+      ForegroundService.sync(
+        apiKey: s.apiKey,
+        notificationsEnabled: s.notificationsEnabled,
+        intervalMinutes: s.checkIntervalMinutes,
+      );
+    });
     final settingsAsync = ref.watch(settingsProvider);
 
     return settingsAsync.when(

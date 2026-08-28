@@ -1,14 +1,14 @@
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:image/image.dart' as img;
 
 const _source = 'assets/images/png/icon-1024.png';
-const _sizes = [16, 24, 32, 48, 64, 128, 256];
-const _targets = [
-  'windows/runner/resources/app_icon.ico',
-  'assets/images/ico/gometer.ico',
-];
+const _appFrameSizes = [16, 24, 32, 48, 64, 128, 256];
+const _trayFrameSizes = [16, 20, 24, 32, 48];
+const _appIcoTargets = ['windows/runner/resources/app_icon.ico'];
+const _trayIcoTargets = ['assets/images/ico/gometer.ico'];
 
 Uint8List _encodeBmpFrame(img.Image image) {
   final w = image.width;
@@ -86,6 +86,60 @@ Uint8List _encodeIco(List<img.Image> frames) {
   return out.toBytes();
 }
 
+/// Tray icons read better when the logo fills more of the canvas and the
+/// ring/stroke are proportionally heavier. Trim the transparent margins and
+/// re-center on a full-size canvas, keeping a small padding for the edge AA.
+img.Image _trayCanvas(img.Image source) {
+  var minX = source.width, minY = source.height, maxX = -1, maxY = -1;
+  for (var y = 0; y < source.height; y++) {
+    for (var x = 0; x < source.width; x++) {
+      if (source.getPixel(x, y).a.toInt() > 0) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+  if (maxX < 0) return source;
+
+  final cropped = img.copyCrop(
+    source,
+    x: minX,
+    y: minY,
+    width: maxX - minX + 1,
+    height: maxY - minY + 1,
+  );
+
+  const side = 1024;
+  // 2% padding on each side for anti-aliased edges.
+  final targetSide = (side * 0.96).round();
+  final scale = targetSide / math.max(cropped.width, cropped.height);
+  final w = math.max(1, (cropped.width * scale).round());
+  final h = math.max(1, (cropped.height * scale).round());
+
+  final resized = img.copyResize(
+    cropped,
+    width: w,
+    height: h,
+    interpolation: img.Interpolation.cubic,
+  );
+
+  final canvas = img.Image(width: side, height: side, numChannels: 4);
+  img.compositeImage(canvas, resized, dstX: (side - w) ~/ 2, dstY: (side - h) ~/ 2);
+  return canvas;
+}
+
+void _saveIco(List<img.Image> frames, List<String> targets) {
+  final ico = _encodeIco(frames);
+  for (final target in targets) {
+    File(target).writeAsBytesSync(ico);
+    stderr.writeln(
+      'Saved $target (${ico.length} bytes, ${frames.length} frames)',
+    );
+  }
+}
+
 void main() {
   final source = img.decodeImage(File(_source).readAsBytesSync());
   if (source == null) {
@@ -93,13 +147,15 @@ void main() {
     exit(1);
   }
 
-  final frames = [
-    for (final size in _sizes) img.copyResizeCropSquare(source, size: size),
+  final appFrames = [
+    for (final size in _appFrameSizes) img.copyResizeCropSquare(source, size: size),
   ];
+  _saveIco(appFrames, _appIcoTargets);
 
-  final ico = _encodeIco(frames);
-  for (final target in _targets) {
-    File(target).writeAsBytesSync(ico);
-    stderr.writeln('Saved $target (${ico.length} bytes, ${frames.length} frames)');
-  }
+  final trayCanvas = _trayCanvas(source);
+  final trayFrames = [
+    for (final size in _trayFrameSizes)
+      img.copyResizeCropSquare(trayCanvas, size: size),
+  ];
+  _saveIco(trayFrames, _trayIcoTargets);
 }

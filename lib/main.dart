@@ -7,6 +7,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
 import 'app.dart';
+import 'core/foreground/foreground_service.dart';
 import 'core/notifications/flutter_local_notifications_service.dart';
 import 'core/notifications/notification_history.dart';
 import 'core/notifications/notification_service.dart';
@@ -62,6 +63,16 @@ void main() async {
 
   final notificationsService = FlutterLocalNotificationsService();
   await notificationsService.init();
+
+  if (Platform.isAndroid) {
+    final initial = repo.load();
+    ForegroundService.init(intervalMinutes: initial.checkIntervalMinutes);
+    await ForegroundService.sync(
+      apiKey: initial.apiKey,
+      notificationsEnabled: initial.notificationsEnabled,
+      intervalMinutes: initial.checkIntervalMinutes,
+    );
+  }
 
   runApp(
     ProviderScope(

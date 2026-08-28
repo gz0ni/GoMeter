@@ -59,7 +59,11 @@ android {
             signingConfig = if (hasReleaseSigning) {
                 signingConfigs.getByName("release")
             } else {
-                signingConfigs.getByName("debug")
+                error(
+                    "Release signing missing: KEYSTORE secrets not configured. " +
+                    "Ensure android/app/keystore.jks and local.properties (keyStore/storePassword/keyAlias/keyPassword) are set. " +
+                    "Fallback to debug key disabled to prevent INSTALL_FAILED_UPDATE_INCOMPATIBLE."
+                )
             }
         }
     }

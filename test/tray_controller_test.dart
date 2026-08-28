@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gometer/core/tray/tray_controller.dart';
+import 'package:gometer/features/usage/models/usage_limit.dart';
 import 'package:path/path.dart' as p;
 
 void main() {
@@ -101,6 +102,46 @@ void main() {
 
       expect(path, contains('icon-64.png'));
       expect(File(path).existsSync(), isTrue);
+    });
+  });
+
+  group('buildTrayTooltip', () {
+    test('falls back to the app name for an empty list', () {
+      expect(buildTrayTooltip(const []), 'GoMeter');
+    });
+
+    test('formats remaining percent per window with short labels', () {
+      const limits = [
+        UsageLimit(
+          id: 'rolling',
+          name: 'Rolling 5h',
+          window: '5h',
+          percent: 31,
+        ),
+        UsageLimit(
+          id: 'weekly',
+          name: 'Weekly',
+          window: '7d',
+          percent: 59,
+        ),
+        UsageLimit(
+          id: 'monthly',
+          name: 'Monthly',
+          window: '30d',
+          percent: 69,
+        ),
+      ];
+
+      expect(buildTrayTooltip(limits), 'R5h: 69% · W: 41% · M: 31%');
+    });
+
+    test('uses the limit name for unknown window ids', () {
+      const limits = [
+        UsageLimit(id: 'rolling', name: 'Rolling 5h', window: '5h', percent: 10),
+        UsageLimit(id: 'custom', name: 'Custom', window: '30m', percent: 80),
+      ];
+
+      expect(buildTrayTooltip(limits), 'R5h: 90% · Custom: 20%');
     });
   });
 }

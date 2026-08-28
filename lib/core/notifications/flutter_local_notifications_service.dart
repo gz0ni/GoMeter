@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:gometer/core/notifications/notification_service.dart';
+import 'package:gometer/core/tray/tray_controller.dart';
 
 const _windowsAppUserModelId = 'dev.gometer.gometer';
 const _windowsGuid = '8b47fe3c-5f9e-4b1d-9c4e-2e5a6f7a8b9c';
@@ -16,8 +17,8 @@ class FlutterLocalNotificationsService implements NotificationService {
   Future<void> init() async {
     if (_initialized) return;
     try {
-      const settings = InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      final settings = InitializationSettings(
+        android: AndroidInitializationSettings('ic_stat_gometer'),
         iOS: DarwinInitializationSettings(
           requestAlertPermission: false,
           requestBadgePermission: false,
@@ -35,6 +36,7 @@ class FlutterLocalNotificationsService implements NotificationService {
           appName: 'GoMeter',
           appUserModelId: _windowsAppUserModelId,
           guid: _windowsGuid,
+          iconPath: resolveTrayIconPath(),
         ),
       );
       await _plugin.initialize(settings: settings);
