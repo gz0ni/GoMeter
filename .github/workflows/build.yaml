@@ -74,12 +74,15 @@ jobs:
             exit 1
           fi
           {
-            echo "keyStore=android/app/keystore.jks"
+            echo "keyStore=app/keystore.jks"
             echo "keyAlias=${{ secrets.KEY_ALIAS }}"
             echo "storePassword=${{ secrets.STORE_PASSWORD }}"
             echo "keyPassword=${{ secrets.KEY_PASSWORD }}"
           } >> android/local.properties
           echo "Android signing configured: keystore $(wc -c < android/app/keystore.jks) bytes, alias=${{ secrets.KEY_ALIAS }}"
+          echo "local.properties:"
+          cat android/local.properties
+          ls -l android/app/keystore.jks
 
       - name: Setup NDK
         if: startsWith(matrix.platform, 'android')

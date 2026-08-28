@@ -17,7 +17,7 @@ val mStoreFilePath: String? = localProperties.getProperty("keyStore")
 val mStorePassword: String? = localProperties.getProperty("storePassword")
 val mKeyAlias: String? = localProperties.getProperty("keyAlias")
 val mKeyPassword: String? = localProperties.getProperty("keyPassword")
-val mStoreFile: File? = mStoreFilePath?.let { file(it) }
+val mStoreFile: File? = mStoreFilePath?.let { rootProject.file(it) }
 val hasReleaseSigning = mStoreFile?.exists() == true &&
     mStorePassword != null && mKeyAlias != null && mKeyPassword != null
 
