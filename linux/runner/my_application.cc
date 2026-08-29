@@ -14,6 +14,8 @@ struct _MyApplication {
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
 
+static GtkWindow* g_main_window = nullptr;
+
 // Called when first Flutter frame received.
 static void first_frame_cb(MyApplication* self, FlView* view) {
   gtk_widget_show(gtk_widget_get_toplevel(GTK_WIDGET(view)));
@@ -21,6 +23,10 @@ static void first_frame_cb(MyApplication* self, FlView* view) {
 
 // Implements GApplication::activate.
 static void my_application_activate(GApplication* application) {
+  if (g_main_window != nullptr) {
+    gtk_window_present(g_main_window);
+    return;
+  }
   MyApplication* self = MY_APPLICATION(application);
   GtkWindow* window =
       GTK_WINDOW(gtk_application_window_new(GTK_APPLICATION(application)));
@@ -76,6 +82,10 @@ static void my_application_activate(GApplication* application) {
   fl_register_plugins(FL_PLUGIN_REGISTRY(view));
 
   gtk_widget_grab_focus(GTK_WIDGET(view));
+
+  g_main_window = window;
+  g_signal_connect(window, "destroy",
+                   G_CALLBACK(gtk_widget_destroyed), &g_main_window);
 }
 
 // Implements GApplication::local_command_line.
@@ -144,5 +154,5 @@ MyApplication* my_application_new() {
 
   return MY_APPLICATION(g_object_new(my_application_get_type(),
                                      "application-id", APPLICATION_ID, "flags",
-                                     G_APPLICATION_NON_UNIQUE, nullptr));
+                                     G_APPLICATION_FLAGS_NONE, nullptr));
 }
