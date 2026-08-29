@@ -45,7 +45,7 @@
 
 ### Tray (`lib/core/tray/`)
 
-- `tray_controller.dart` — singleton that hides the window, sets the tray icon and provides a menu: «Открыть GoMeter» (show/restore/focus) and «Выход». Icon path is resolved by `resolveTrayIconPath` against the exe dir (`data/flutter_assets`), with cwd fallbacks for dev runs (Windows `.ico`, others `icon-64.png`). Right-click pops the context menu via `onTrayIconRightMouseDown` → `popUpContextMenu`. Used only for `--quiet` start (tray_manager + window_manager).
+- `tray_controller.dart` — singleton that hides the window, sets the tray icon and provides a menu: «Открыть GoMeter» (show/restore/focus) and «Выход». Icon path is resolved by `resolveTrayIconPath` against the exe dir (`data/flutter_assets`), with cwd fallbacks for dev runs (Windows `.ico`, Linux `icon-64.png`; macOS uses `assets/images/png/tray-mono-black-16.png` via `rootBundle` + `isTemplate:true` for menubar light/dark). `buildTrayTooltip` (`R5h: 69% · W: 41% · M: 31%`) feeds `updateTooltip`; on macOS `updateTooltip` also rebuilds the context menu with disabled header items (limits) because `setToolTip` is a no-op on macOS (left-click → `popUpContextMenu` with limits, right-click → same menu; Win/Linux: left-click → `showWindow`, right-click → `popUpContextMenu`). `onWindowClose` → `hide()` with `setPreventClose(true)`; `macos/Runner/AppDelegate.swift` `shouldTerminateAfterLastWindowClosed=false` + `shouldHandleReopen` keeps `NSStatusItem` alive and restores window on dock click.
 
 ### Update (`lib/core/update/`)
 
@@ -56,7 +56,7 @@
 - `installer.dart` — platform-specific install launchers:
   - Windows: run `setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART` and exit.
   - Linux: `pkexec dpkg -i <deb>` with `xdg-open` fallback.
-  - macOS: mount `.dmg` and copy `GoMeter.app` to `/Applications` via `osascript`.
+  - macOS: create temp mount via `Directory.systemTemp.createTemp('gometer_update_')` (fallback `TMPDIR`), `hdiutil attach -mountpoint <tmp> -nobrowse` with exitCode check, copy `GoMeter.app` to `/Applications` via `osascript ditto ... with administrator privileges` (exitCode check), `hdiutil detach` + `delete` in `finally`; no hardcoded `/tmp/gometer_update`.
   - Android: `FileProvider` + `ACTION_VIEW` intent via a Kotlin method channel.
 
 ### Layout (`lib/core/layout/`)

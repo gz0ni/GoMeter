@@ -41,19 +41,32 @@ class TrayController with TrayListener, WindowListener {
         await trayManager.setIcon(resolveTrayIconPath());
       }
       await trayManager.setToolTip('GoMeter');
-      await trayManager.setContextMenu(
-        Menu(items: [
-          MenuItem(key: 'open', label: 'Открыть GoMeter'),
-          MenuItem.separator(),
-          MenuItem(key: 'quit', label: 'Выход'),
-        ]),
-      );
+      await _rebuildMenu('GoMeter');
       trayManager.addListener(this);
       _attached = true;
     } catch (_) {
       // best-effort: tray is a nice-to-have; failures must not block startup
       // (e.g. Linux without a tray implementation, macOS sandbox quirks).
     }
+  }
+
+  Future<void> _rebuildMenu(String tooltip) async {
+    final items = <MenuItem>[];
+    if (Platform.isMacOS && tooltip != 'GoMeter') {
+      final parts = tooltip.split(' · ');
+      for (final part in parts) {
+        items.add(MenuItem(key: 'limit_${part.hashCode}', label: part, disabled: true));
+      }
+      if (parts.isNotEmpty) items.add(MenuItem.separator());
+    }
+    items.addAll([
+      MenuItem(key: 'open', label: 'Открыть GoMeter'),
+      MenuItem.separator(),
+      MenuItem(key: 'quit', label: 'Выход'),
+    ]);
+    try {
+      await trayManager.setContextMenu(Menu(items: items));
+    } catch (_) {}
   }
 
   Future<void> showWindow() async {
@@ -71,11 +84,18 @@ class TrayController with TrayListener, WindowListener {
     } catch (_) {
       // best-effort: tooltip updates must never break the app.
     }
+    if (Platform.isMacOS) {
+      await _rebuildMenu(text);
+    }
   }
 
   @override
   void onTrayIconMouseDown() {
-    showWindow();
+    if (Platform.isMacOS) {
+      trayManager.popUpContextMenu();
+    } else {
+      showWindow();
+    }
   }
 
   @override
