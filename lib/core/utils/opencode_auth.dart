@@ -26,6 +26,7 @@ List<String> _candidatePaths() {
         if (home != null) p.join(home, '.config', 'opencode', 'auth.json'),
       ],
     'macos' => [
+        if (home != null) p.join(home, '.local', 'share', 'opencode', 'auth.json'),
         if (home != null)
           p.join(home, 'Library', 'Application Support', 'opencode', 'auth.json'),
         if (home != null) p.join(home, '.config', 'opencode', 'auth.json'),

@@ -32,7 +32,14 @@ class TrayController with TrayListener, WindowListener {
     try {
       await windowManager.ensureInitialized();
       windowManager.addListener(this);
-      await trayManager.setIcon(resolveTrayIconPath());
+      if (Platform.isMacOS) {
+        await trayManager.setIcon(
+          'assets/images/png/tray-mono-black-16.png',
+          isTemplate: true,
+        );
+      } else {
+        await trayManager.setIcon(resolveTrayIconPath());
+      }
       await trayManager.setToolTip('GoMeter');
       await trayManager.setContextMenu(
         Menu(items: [
@@ -101,8 +108,9 @@ class TrayController with TrayListener, WindowListener {
 /// 3. `<exeDir>/<rel>` — unpacked repo build;
 /// 4. `<cwd>/<rel>` — repo root.
 ///
-/// Windows needs an `.ico`; other platforms use `icon-64.png`. Returns the
-/// raw relative path as a last-resort fallback so the call never throws.
+/// Windows needs an `.ico`; Linux uses `icon-64.png`; macOS uses a template
+/// icon via `rootBundle` (`attachToTray` bypasses this resolver on macOS).
+/// Returns the raw relative path as a last-resort fallback so the call never throws.
 String resolveTrayIconPath({
   String? exePath,
   String? cwd,
